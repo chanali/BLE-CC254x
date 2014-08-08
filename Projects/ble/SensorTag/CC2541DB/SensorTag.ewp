@@ -3581,6 +3581,12 @@
     <file>
       <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\testservice.h</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\timeservice.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\timeservice.h</name>
+    </file>
   </group>
   <group>
     <name>TOOLS</name>

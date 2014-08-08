@@ -2,73 +2,13 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>1971775015</fileChecksum>
+  <fileChecksum>3050003118</fileChecksum>
   <configuration>
     <name>CC2541DK-Sensor</name>
     <outputs>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_cbtimer.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_ClockBLE.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Memory.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_PwrMgr.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\barometerservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_snv.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Timers.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\accelerometerservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gap.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\ccservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\devinfoservice-st.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gapbondmgr.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\humidityservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gatt_uuid.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gyroservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\irtempservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\magnetometerservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\simplekeys.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\st_util.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\oad_target.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\peripheral.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\testservice.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OnBoard.r51</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_SensorTag.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\SensorTag.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\SensorTag_Main.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_drivers.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_acc.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_aes.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_assert.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_bar.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_crc.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_dma.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_flash.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_gyro.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_humi.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_i2c.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_interrupt.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_irtemp.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_keys.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_led.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_mag.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_sensor.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_sleep.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_startup.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_timer.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\npi.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_bufmgr.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_cbtimer.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_ClockBLE.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Memory.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_PwrMgr.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_snv.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Timers.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\accelerometerservice.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\barometerservice.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\ccservice.pbi</file>
-      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\devinfoservice-st.pbi</file>
       <file>$PROJ_DIR$\..\Source\OSAL_SensorTag.c</file>
       <file>$PROJ_DIR$\..\Source\SensorTag.c</file>
-      <file>$PROJ_DIR$\..\Source\SensorTag.h</file>
+      <file>$PROJ_DIR$\..\Source\sensorTag.h</file>
       <file>$PROJ_DIR$\..\Source\SensorTag_Main.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\common\hal_drivers.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\include\hal_assert.h</file>
@@ -97,8 +37,8 @@
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_i2c.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_irtemp.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_keys.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_sensor.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_led.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_sensor.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_mag.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_sleep.c</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_startup.c</file>
@@ -162,10 +102,58 @@
       <file>$PROJ_DIR$\..\..\Profiles\SensorProfile\st_util.h</file>
       <file>$PROJ_DIR$\..\..\Profiles\SensorProfile\testservice.c</file>
       <file>$PROJ_DIR$\..\..\Profiles\SensorProfile\testservice.h</file>
+      <file>$PROJ_DIR$\..\..\Profiles\SensorProfile\timeservice.c</file>
+      <file>$PROJ_DIR$\..\..\Profiles\SensorProfile\timeservice.h</file>
       <file>$PROJ_DIR$\..\..\config\buildComponents.cfg</file>
       <file>$PROJ_DIR$\buildConfig.cfg</file>
       <file>$PROJ_DIR$\..\..\common\cc2540\OnBoard.c</file>
       <file>$PROJ_DIR$\..\..\common\cc2540\OnBoard.h</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gatt_uuid.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gyroservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\irtempservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\oad_target.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\testservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\peripheral.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\st_util.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OnBoard.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\simplekeys.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\magnetometerservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_SensorTag.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\SensorTag.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\SensorTag_Main.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_drivers.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_acc.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_aes.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_assert.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_bar.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_crc.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_dma.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_flash.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_gyro.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_humi.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_i2c.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_interrupt.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_irtemp.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_keys.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_led.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_mag.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_sensor.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_sleep.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_startup.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_timer.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\npi.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_bufmgr.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_cbtimer.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_ClockBLE.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Memory.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_PwrMgr.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_snv.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Timers.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\accelerometerservice.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\barometerservice.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\ccservice.pbi</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\devinfoservice-st.pbi</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_flash.r51</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_gyro.r51</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_humi.r51</file>
@@ -198,34 +186,48 @@
       <file>$TOOLKIT_DIR$\inc\clib\limits.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\comdef.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Memory.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_data.h</file>
+      <file>$TOOLKIT_DIR$\inc\ioCC2541.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Memory.h</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL.r51</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Timers.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Tasks.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_tl.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\hci.h</file>
-      <file>$TOOLKIT_DIR$\inc\ioCC2541.h</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_cbtimer.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_ClockBLE.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\osal_snv.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\accelerometerservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Timers.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\barometerservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gap.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_PwrMgr.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_Memory.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\ccservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\devinfoservice-st.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\gapbondmgr.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\humidityservice.r51</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\hci\hci_event.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\gatt.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_cbTimer.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\l2cap.h</file>
+      <file>$TOOLKIT_DIR$\inc\clib\string.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_cbtimer.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_math.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\gap.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\sm.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\att.h</file>
-      <file>$TOOLKIT_DIR$\inc\clib\string.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_timer2.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_snv.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_Clock.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_math.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_timer2.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\controller\include\ll_sleep.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\hal\include\hal_adc.h</file>
+      <file>$PROJ_DIR$\..\..\Include\gatt_profile_uuid.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\host\linkdb.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\osal_bufmgr.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\ble\include\gatt_uuid.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\hal\include\hal_adc.h</file>
-      <file>$PROJ_DIR$\..\..\Include\gatt_profile_uuid.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_PwrMgr.h</file>
       <file>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_crc.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\Components\osal\include\OSAL_PwrMgr.h</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_irtemp.r51</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\hal_keys.r51</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\OSAL_SensorTag.r51</file>
@@ -242,13 +244,15 @@
       <file>$PROJ_DIR$\..\..\common\cc2540\ti_51ew_cc2540b.xcl</file>
       <file>$TOOLKIT_DIR$\lib\clib\cl-pli-blxd-1e16x01.r51</file>
       <file>$PROJ_DIR$\CC2541DK-Sensor\Exe\SensorTag.hex</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\timeservice.r51</file>
+      <file>$PROJ_DIR$\CC2541DK-Sensor\Obj\timeservice.pbi</file>
     </outputs>
     <file>
       <name>[ROOT_NODE]</name>
       <outputs>
         <tool>
           <name>XLINK</name>
-          <file> 186 232 235</file>
+          <file> 174 234 237</file>
         </tool>
       </outputs>
     </file>
@@ -257,21 +261,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 222</file>
+          <file> 224</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 24</file>
+          <file> 112</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 109 190 189 188 191 67 192 195 196 68 194 114 197 198 65 75 66 77 108 199 193 200 202 203 204 205 134 133 201 206 136 149 62</file>
+          <file> 98 99 49 178 177 176 179 7 182 185 186 8 184 54 187 188 5 15 6 17 48 181 180 202 206 204 208 209 74 73 203 210 76 89 2</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 109 190 189 188 191 67 192 195 196 68 194 114 197 198 65 75 66 77 108 199 193 200 202 203 204 205 134 133 201 206 136 149 62</file>
+          <file> 49 178 177 176 179 7 182 185 186 8 184 54 187 188 5 15 6 17 48 181 180 202 206 204 208 209 74 73 203 210 76 89 2</file>
         </tool>
       </inputs>
     </file>
@@ -280,21 +284,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 223</file>
+          <file> 225</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 25</file>
+          <file> 113</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 218 159 108 199 73 216 66 77 72 105 104 201 206 203 198 194 65 134 136 149 133 204 205 153 130 142 124 140 144 126 138 155 151 128 62 106 103 98 102 107 100 97</file>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 221 101 48 181 13 215 6 17 12 45 44 203 210 204 188 184 5 74 76 89 73 208 209 93 70 82 64 80 84 66 78 95 91 68 97 2 46 43 38 42 47 40 37</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 218 159 108 199 73 216 66 77 72 105 104 201 206 203 198 194 65 134 136 149 133 204 205 153 130 142 124 140 144 126 138 155 151 128 62 106 103 98 102 107 100 97</file>
+          <file> 54 179 49 7 178 177 176 182 185 221 101 48 181 13 215 6 17 12 45 44 203 210 204 188 184 5 74 76 89 73 208 209 93 70 82 64 80 84 66 78 95 91 68 97 2 46 43 38 42 47 40 37</file>
         </tool>
       </inputs>
     </file>
@@ -303,21 +307,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 224</file>
+          <file> 226</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 26</file>
+          <file> 114</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 109 70 66 77 108 67 199 74 68 72 65 190 189 188 191 192 195 196 218 208 159 73 62</file>
+          <file> 98 99 49 10 6 17 48 7 181 14 8 12 5 178 177 176 179 182 185 186 221 212 101 13 2</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 109 70 66 77 108 67 199 74 68 72 65 190 189 188 191 192 195 196 218 208 159 73 62</file>
+          <file> 49 10 6 17 48 7 181 14 8 12 5 178 177 176 179 182 185 186 221 212 101 13 2</file>
         </tool>
       </inputs>
     </file>
@@ -326,21 +330,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 226</file>
+          <file> 228</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 27</file>
+          <file> 115</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 216 109 66 77 108 67 199 101 68 70 71 72 73 74 75 190 189 188 191 192 195 218</file>
+          <file> 98 99 215 49 6 17 48 7 181 41 8 10 11 12 13 14 15 178 177 176 179 182 185 221</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 216 109 66 77 108 67 199 101 68 70 71 72 73 74 75 190 189 188 191 192 195 218</file>
+          <file> 215 49 6 17 48 7 181 41 8 10 11 12 13 14 15 178 177 176 179 182 185 221</file>
         </tool>
       </inputs>
     </file>
@@ -349,21 +353,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 228</file>
+          <file> 230</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 30</file>
+          <file> 118</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 65 109 66 77 108 67 199</file>
+          <file> 98 99 5 49 6 17 48 7 181</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 65 109 66 77 108 67 199</file>
+          <file> 5 49 6 17 48 7 181</file>
         </tool>
       </inputs>
     </file>
@@ -372,21 +376,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 227</file>
+          <file> 229</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 28</file>
+          <file> 116</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 98 191 109 67 106 104 77 108 199</file>
+          <file> 98 99 38 179 49 7 46 44 17 48 181</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 98 191 109 67 106 104 77 108 199</file>
+          <file> 38 179 49 7 46 44 17 48 181</file>
         </tool>
       </inputs>
     </file>
@@ -395,21 +399,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 225</file>
+          <file> 227</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 29</file>
+          <file> 117</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 190 189 188 191 109 67 192 195 99 101 66 77 108 199</file>
+          <file> 98 99 178 177 176 179 49 7 182 185 39 41 6 17 48 181</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 190 189 188 191 109 67 192 195 99 101 66 77 108 199</file>
+          <file> 178 177 176 179 49 7 182 185 39 41 6 17 48 181</file>
         </tool>
       </inputs>
     </file>
@@ -418,21 +422,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 160</file>
+          <file> 148</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 34</file>
+          <file> 122</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 77 108 67 109 199 101 66 69</file>
+          <file> 98 99 17 48 7 49 181 41 6 9</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 77 108 67 109 199 101 66 69</file>
+          <file> 17 48 7 49 181 41 6 9</file>
         </tool>
       </inputs>
     </file>
@@ -441,21 +445,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 229</file>
+          <file> 231</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 31</file>
+          <file> 119</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 100 109 106 104 191 67</file>
+          <file> 98 99 40 49 46 44 179 7</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 100 109 106 104 191 67</file>
+          <file> 40 49 46 44 179 7</file>
         </tool>
       </inputs>
     </file>
@@ -464,21 +468,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 230</file>
+          <file> 232</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 32</file>
+          <file> 120</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 66 77 108 67 109 199 219</file>
+          <file> 98 99 6 17 48 7 49 181 220</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 66 77 108 67 109 199 219</file>
+          <file> 6 17 48 7 49 181 220</file>
         </tool>
       </inputs>
     </file>
@@ -487,21 +491,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 231</file>
+          <file> 233</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 33</file>
+          <file> 121</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 101 66 77 108 67 109 199 75</file>
+          <file> 98 99 41 6 17 48 7 49 181 15</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 101 66 77 108 67 109 199 75</file>
+          <file> 41 6 17 48 7 49 181 15</file>
         </tool>
       </inputs>
     </file>
@@ -510,21 +514,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 161</file>
+          <file> 149</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 35</file>
+          <file> 123</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 97 191 109 67 104 106</file>
+          <file> 98 99 37 179 49 7 44 46</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 97 191 109 67 104 106</file>
+          <file> 37 179 49 7 44 46</file>
         </tool>
       </inputs>
     </file>
@@ -533,21 +537,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 162</file>
+          <file> 150</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 36</file>
+          <file> 124</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 102 109 106 104 191 67</file>
+          <file> 98 99 42 49 46 44 179 7</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 102 109 106 104 191 67</file>
+          <file> 42 49 46 44 179 7</file>
         </tool>
       </inputs>
     </file>
@@ -556,21 +560,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 168</file>
+          <file> 156</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 38</file>
+          <file> 126</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 105 66 77 108 67 109 199 98 191 107 104</file>
+          <file> 98 99 45 6 17 48 7 49 181 38 179 47 44</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 105 66 77 108 67 109 199 98 191 107 104</file>
+          <file> 45 6 17 48 7 49 181 38 179 47 44</file>
         </tool>
       </inputs>
     </file>
@@ -579,21 +583,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 169</file>
+          <file> 157</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 37</file>
+          <file> 125</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 65 77 108 67 109 199 104 191</file>
+          <file> 98 99 5 17 48 7 49 181 44 179</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 65 77 108 67 109 199 104 191</file>
+          <file> 5 17 48 7 49 181 44 179</file>
         </tool>
       </inputs>
     </file>
@@ -602,21 +606,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 220</file>
+          <file> 222</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 39</file>
+          <file> 127</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 103 191 109 67 104 106</file>
+          <file> 98 99 43 179 49 7 44 46</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 103 191 109 67 104 106</file>
+          <file> 43 179 49 7 44 46</file>
         </tool>
       </inputs>
     </file>
@@ -625,44 +629,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 221</file>
+          <file> 223</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 40</file>
+          <file> 128</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 108 67 109 199 68 216 66 77 105 190 189 188 191 192 195</file>
+          <file> 98 99 48 7 49 181 8 215 6 17 45 178 177 176 179 182 185</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 108 67 109 199 68 216 66 77 105 190 189 188 191 192 195</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_sensor.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 165</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 43</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 106 109 104 191 67 72 66 77 108 199 103 102 100 107 98 97</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 106 109 104 191 67 72 66 77 108 199 103 102 100 107 98 97</file>
+          <file> 48 7 49 181 8 215 6 17 45 178 177 176 179 182 185</file>
         </tool>
       </inputs>
     </file>
@@ -671,21 +652,44 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 166</file>
+          <file> 154</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 41</file>
+          <file> 129</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 108 67 109 199 68 72 66 77 190 189 188 191 192 195</file>
+          <file> 98 99 48 7 49 181 8 12 6 17 178 177 176 179 182 185</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 108 67 109 199 68 72 66 77 190 189 188 191 192 195</file>
+          <file> 48 7 49 181 8 12 6 17 178 177 176 179 182 185</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\Components\hal\target\CC2541ST\hal_sensor.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 153</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 131</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 46 49 44 179 7 12 6 17 48 181 43 42 40 47 38 37</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 46 49 44 179 7 12 6 17 48 181 43 42 40 47 38 37</file>
         </tool>
       </inputs>
     </file>
@@ -694,21 +698,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 163</file>
+          <file> 151</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 42</file>
+          <file> 130</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 107 191 109 67 106 104</file>
+          <file> 98 99 47 179 49 7 46 44</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 107 191 109 67 106 104</file>
+          <file> 47 179 49 7 46 44</file>
         </tool>
       </inputs>
     </file>
@@ -717,21 +721,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 164</file>
+          <file> 152</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 44</file>
+          <file> 132</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 109 108 67 199 66 77 73 72 70 104 191 190 189 188 192 195 196 218 68 65 212 114 211 210</file>
+          <file> 98 99 49 48 7 181 6 17 13 12 10 44 179 178 177 176 182 185 186 221 8 5 214 54 211 207</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 109 108 67 199 66 77 73 72 70 104 191 190 189 188 192 195 196 218 68 65 212 114 211 210</file>
+          <file> 49 48 7 181 6 17 13 12 10 44 179 178 177 176 182 185 186 221 8 5 214 54 211 207</file>
         </tool>
       </inputs>
     </file>
@@ -740,21 +744,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 167</file>
+          <file> 155</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 45</file>
+          <file> 133</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 66 77 108 67 109 199</file>
+          <file> 98 99 6 17 48 7 49 181</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 66 77 108 67 109 199</file>
+          <file> 6 17 48 7 49 181</file>
         </tool>
       </inputs>
     </file>
@@ -763,17 +767,17 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 170</file>
+          <file> 158</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 46</file>
+          <file> 134</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157</file>
+          <file> 98 99</file>
         </tool>
       </inputs>
     </file>
@@ -782,21 +786,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 171</file>
+          <file> 159</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 47</file>
+          <file> 135</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 109 66 77 108 67 199 113 75</file>
+          <file> 98 99 49 6 17 48 7 181 53 15</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 109 66 77 108 67 199 113 75</file>
+          <file> 49 6 17 48 7 181 53 15</file>
         </tool>
       </inputs>
     </file>
@@ -805,21 +809,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 0</file>
+          <file> 183</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 48</file>
+          <file> 136</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 207 188 191 109 67 66 77 108 199 190 189 192 195 196 218 209 159 73 68</file>
+          <file> 98 99 205 176 179 49 7 6 17 48 181 178 177 182 185 186 221 213 101 13 8</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 207 188 191 109 67 66 77 108 199 190 189 192 195 196 218 209 159 73 68</file>
+          <file> 205 176 179 49 7 6 17 48 181 178 177 182 185 186 221 213 101 13 8</file>
         </tool>
       </inputs>
     </file>
@@ -828,21 +832,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 172</file>
+          <file> 160</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 49</file>
+          <file> 137</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 190 189 188 191 109 67 192 195 159 108 199 73 214</file>
+          <file> 98 99 178 177 176 179 49 7 182 185 101 48 181 13 218</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 190 189 188 191 109 67 192 195 159 108 199 73 214</file>
+          <file> 178 177 176 179 49 7 182 185 101 48 181 13 218</file>
         </tool>
       </inputs>
     </file>
@@ -851,21 +855,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 1</file>
+          <file> 189</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 50</file>
+          <file> 138</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 190 189 188 191 109 67 192 195 196 202</file>
+          <file> 98 99 178 177 176 179 49 7 182 185 186 206</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 190 189 188 191 109 67 192 195 196 202</file>
+          <file> 178 177 176 179 49 7 182 185 186 206</file>
         </tool>
       </inputs>
     </file>
@@ -874,21 +878,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 2</file>
+          <file> 190</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 51</file>
+          <file> 139</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 191 109 67 159 108 199 73 190 189 188 192 195 209</file>
+          <file> 98 99 179 49 7 101 48 181 13 178 177 176 182 185 213</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 191 109 67 159 108 199 73 190 189 188 192 195 209</file>
+          <file> 179 49 7 101 48 181 13 178 177 176 182 185 213</file>
         </tool>
       </inputs>
     </file>
@@ -897,21 +901,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 3</file>
+          <file> 197</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 52</file>
+          <file> 140</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 191 109 67 190 189 188 192 195 159 108 199 73 65</file>
+          <file> 98 99 179 49 7 178 177 176 182 185 101 48 181 13 5</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 191 109 67 190 189 188 192 195 159 108 199 73 65</file>
+          <file> 179 49 7 178 177 176 182 185 101 48 181 13 5</file>
         </tool>
       </inputs>
     </file>
@@ -920,21 +924,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 4</file>
+          <file> 196</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 53</file>
+          <file> 141</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 191 109 67 159 108 199 73 190 189 188 192 195 196 218</file>
+          <file> 98 99 179 49 7 101 48 181 13 178 177 176 182 185 186 221</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 191 109 67 159 108 199 73 190 189 188 192 195 196 218</file>
+          <file> 179 49 7 101 48 181 13 178 177 176 182 185 186 221</file>
         </tool>
       </inputs>
     </file>
@@ -943,21 +947,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 6</file>
+          <file> 191</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 54</file>
+          <file> 142</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 216 109 66 77 108 67 199 69 191 190 189 188 192 195 208 65 76</file>
+          <file> 98 99 215 49 6 17 48 7 181 9 179 178 177 176 182 185 212 5 16</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 216 109 66 77 108 67 199 69 191 190 189 188 192 195 208 65 76</file>
+          <file> 215 49 6 17 48 7 181 9 179 178 177 176 182 185 212 5 16</file>
         </tool>
       </inputs>
     </file>
@@ -966,21 +970,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 7</file>
+          <file> 193</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 55</file>
+          <file> 143</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 191 109 67 159 108 199 73 190 189 188 192 195 74 66 77</file>
+          <file> 98 99 179 49 7 101 48 181 13 178 177 176 182 185 14 6 17</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 191 109 67 159 108 199 73 190 189 188 192 195 74 66 77</file>
+          <file> 179 49 7 101 48 181 13 178 177 176 182 185 14 6 17</file>
         </tool>
       </inputs>
     </file>
@@ -989,21 +993,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 8</file>
+          <file> 192</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 56</file>
+          <file> 144</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 124 153</file>
+          <file> 98 99 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 64 93</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 124 153</file>
+          <file> 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 64 93</file>
         </tool>
       </inputs>
     </file>
@@ -1012,21 +1016,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 5</file>
+          <file> 194</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 57</file>
+          <file> 145</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 126 153</file>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 66 93</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 126 153</file>
+          <file> 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 66 93</file>
         </tool>
       </inputs>
     </file>
@@ -1035,21 +1039,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 10</file>
+          <file> 198</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 58</file>
+          <file> 146</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 128 153</file>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 68 93</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 128 153</file>
+          <file> 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 68 93</file>
         </tool>
       </inputs>
     </file>
@@ -1058,21 +1062,21 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 11</file>
+          <file> 199</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 59</file>
+          <file> 147</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 213 206 203 201 215 217 136 130</file>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 217 210 204 203 219 216 76 70</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 213 206 203 201 215 217 136 130</file>
+          <file> 54 179 49 7 178 177 176 182 185 217 210 204 203 219 216 76 70</file>
         </tool>
       </inputs>
     </file>
@@ -1081,7 +1085,306 @@
       <outputs>
         <tool>
           <name>ICC8051</name>
-          <file> 9</file>
+          <file> 195</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 161</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 208 178 177 176 182 185 209</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 208 178 177 176 182 185 209</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\Roles\gapbondmgr.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 200</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 162</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 212 208 209 217 203 210 204 219 188 184 5 76 74 73</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 178 177 176 182 185 212 208 209 217 203 210 204 219 188 184 5 76 74 73</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\Components\ble\host\gatt_uuid.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 102</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 163</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 179 49 7 178 177 176 182 185 203 54 210 204 219</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 179 49 7 178 177 176 182 185 203 54 210 204 219</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\gyroservice.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 103</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 164</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 78 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 78 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\humidityservice.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 201</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 165</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 80 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 80 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\irtempservice.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 104</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 166</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 82 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 82 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\magnetometerservice.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 111</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 167</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 84 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 84 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\OAD\oad_target.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 105</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 168</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 210 178 177 176 182 185 204 203 219 76 39 220 9 6 17 48 181 41 217 85 87</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 210 178 177 176 182 185 204 203 219 76 39 220 9 6 17 48 181 41 217 85 87</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\Roles\peripheral.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 107</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 169</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 187 188 184 5 15 6 17 48 181 180 202 204 208 209 217 210 203 212 89 73</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 178 177 176 182 185 187 188 184 5 15 6 17 48 181 180 202 204 208 209 217 210 203 212 89 73</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\Keys\simplekeys.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 110</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 170</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 91</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 91</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\st_util.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 108</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 171</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 203 178 177 176 182 185 210 204 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 203 178 177 176 182 185 210 204 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\testservice.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 106</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 172</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 95 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 178 177 176 182 185 217 210 204 203 219 76 73 208 209 95 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\timeservice.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 238</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 239</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 98 99 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 97 93</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 54 179 49 7 217 203 178 177 176 182 185 210 204 219 76 97 93</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\common\cc2540\OnBoard.c</name>
+      <outputs>
+        <tool>
+          <name>ICC8051</name>
+          <file> 109</file>
         </tool>
         <tool>
           <name>BICOMP</name>
@@ -1091,287 +1394,11 @@
       <inputs>
         <tool>
           <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 204 190 189 188 192 195 205</file>
+          <file> 98 99 54 179 49 7 101 48 181 13 178 177 176 182 185 12 6 17 10</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 114 191 109 67 204 190 189 188 192 195 205</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Roles\gapbondmgr.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 12</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 174</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 208 204 205 213 201 206 203 215 198 194 65 136 134 133</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 208 204 205 213 201 206 203 215 198 194 65 136 134 133</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\Components\ble\host\gatt_uuid.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 14</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 175</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 191 109 67 190 189 188 192 195 201 114 206 203 215</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 191 109 67 190 189 188 192 195 201 114 206 203 215</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\gyroservice.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 15</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 176</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 138 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 138 153</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\humidityservice.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 13</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 177</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 140 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 140 153</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\irtempservice.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 16</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 178</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 142 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 142 153</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\magnetometerservice.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 17</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 179</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 144 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 213 201 190 189 188 192 195 206 203 215 136 144 153</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\OAD\oad_target.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 20</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 180</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 206 190 189 188 192 195 203 201 215 136 99 219 69 66 77 108 199 101 213 145 147</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 206 190 189 188 192 195 203 201 215 136 99 219 69 66 77 108 199 101 213 145 147</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Roles\peripheral.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 21</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 181</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 197 198 194 65 75 66 77 108 199 193 200 203 204 205 213 206 201 208 149 133</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 197 198 194 65 75 66 77 108 199 193 200 203 204 205 213 206 201 208 149 133</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\Keys\simplekeys.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 18</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 182</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 151</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 151</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\st_util.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 19</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 183</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 201 190 189 188 192 195 206 203 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 201 190 189 188 192 195 206 203 153</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\Profiles\SensorProfile\testservice.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 22</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 184</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 155 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 190 189 188 192 195 213 206 203 201 215 136 133 204 205 155 153</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\common\cc2540\OnBoard.c</name>
-      <outputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 23</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 185</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICC8051</name>
-          <file> 156 157 114 191 109 67 159 108 199 73 190 189 188 192 195 72 66 77 70</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 114 191 109 67 159 108 199 73 190 189 188 192 195 72 66 77 70</file>
+          <file> 54 179 49 7 101 48 181 13 178 177 176 182 185 12 6 17 10</file>
         </tool>
       </inputs>
     </file>
@@ -1380,13 +1407,13 @@
       <outputs>
         <tool>
           <name>XLINK</name>
-          <file> 232 235</file>
+          <file> 234 237</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 233 110 111 0 2 3 4 222 7 23 223 224 8 5 10 11 9 12 14 15 227 225 228 229 230 231 226 160 161 162 169 168 220 221 166 163 165 164 167 170 13 16 17 171 20 172 1 6 21 18 19 22 234</file>
+          <file> 235 50 51 183 190 197 196 224 193 109 225 226 192 194 198 199 195 200 102 103 229 227 230 231 232 233 228 148 149 150 157 156 222 223 154 151 153 152 155 158 201 104 111 159 105 160 189 191 107 110 108 106 238 236</file>
         </tool>
       </inputs>
     </file>
