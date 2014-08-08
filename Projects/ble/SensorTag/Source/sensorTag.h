@@ -62,6 +62,7 @@ extern "C"
 #define ST_BAROMETER_SENSOR_EVT                          0x0020
 #define ST_GYROSCOPE_SENSOR_EVT                          0x0040
 #define ST_SYS_RESET_EVT                                 0x0080
+#define ST_TIME_SENSOR_EVT                        0x0100
 
 /*********************************************************************
  * MACROS

@@ -1,40 +1,9 @@
 /**************************************************************************************************
-  Filename:       irtempservice.c
-  Revised:        $Date: 2013-08-23 11:45:31 -0700 (Fri, 23 Aug 2013) $
+  Filename:       timeservice.c
+  Revised:        $Date: 2013-08-4
   Revision:       $Revision: 35100 $
 
-  Description:    IR Temperature service.
-
-
-  Copyright 2012-2013 Texas Instruments Incorporated. All rights reserved.
-
-  IMPORTANT: Your use of this Software is limited to those specific rights
-  granted under the terms of a software license agreement between the user
-  who downloaded the software, his/her employer (which must be your employer)
-  and Texas Instruments Incorporated (the "License").  You may not use this
-  Software unless you agree to abide by the terms of the License. The License
-  limits your use, and you acknowledge, that the Software may not be modified,
-  copied or distributed unless embedded on a Texas Instruments microcontroller
-  or used solely and exclusively in conjunction with a Texas Instruments radio
-  frequency transceiver, which is integrated into your product.  Other than for
-  the foregoing purpose, you may not use, reproduce, copy, prepare derivative
-  works of, modify, distribute, perform, display or sell this Software and/or
-  its documentation for any purpose.
-
-  YOU FURTHER ACKNOWLEDGE AND AGREE THAT THE SOFTWARE AND DOCUMENTATION ARE
-  PROVIDED “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
-  INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, TITLE,
-  NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL
-  TEXAS INSTRUMENTS OR ITS LICENSORS BE LIABLE OR OBLIGATED UNDER CONTRACT,
-  NEGLIGENCE, STRICT LIABILITY, CONTRIBUTION, BREACH OF WARRANTY, OR OTHER
-  LEGAL EQUITABLE THEORY ANY DIRECT OR INDIRECT DAMAGES OR EXPENSES
-  INCLUDING BUT NOT LIMITED TO ANY INCIDENTAL, SPECIAL, INDIRECT, PUNITIVE
-  OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, COST OF PROCUREMENT
-  OF SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
-  (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
-
-  Should you have any questions regarding your right to use this Software,
-  contact Texas Instruments Incorporated at www.TI.com.
+  Description:    Time service.
 **************************************************************************************************/
 
 /*********************************************************************
@@ -46,7 +15,7 @@
 #include "gatt_uuid.h"
 #include "gattservapp.h"
 
-#include "irtempservice.h"
+#include "timeservice.h"
 #include "st_util.h"
 
 /*********************************************************************
@@ -58,21 +27,21 @@
  */
 
 /* Service configuration values */
-#define SENSOR_SERVICE_UUID     IRTEMPERATURE_SERV_UUID
-#define SENSOR_DATA_UUID        IRTEMPERATURE_DATA_UUID
-#define SENSOR_CONFIG_UUID      IRTEMPERATURE_CONF_UUID
-#define SENSOR_PERIOD_UUID      IRTEMPERATURE_PERI_UUID
+#define SENSOR_SERVICE_UUID     TIME_SERV_UUID
+#define SENSOR_DATA_UUID        TIME_DATA_UUID
+//#define SENSOR_CONFIG_UUID      TIME_CONF_UUID
+//#define SENSOR_PERIOD_UUID      TIME_PERI_UUID
 
-#define SENSOR_SERVICE          IRTEMPERATURE_SERVICE
-#define SENSOR_DATA_LEN         IRTEMPERATURE_DATA_LEN
+#define SENSOR_SERVICE          TIME_SERVICE
+#define SENSOR_DATA_LEN         TIME_DATA_LEN
 
-#define SENSOR_DATA_DESCR       "Temp. Data"
-#define SENSOR_CONFIG_DESCR     "Temp. Conf."
-#define SENSOR_PERIOD_DESCR     "Temp. Period"
+#define SENSOR_DATA_DESCR       "Time. Data"
+//#define SENSOR_CONFIG_DESCR     "Time. Conf."
+//#define SENSOR_PERIOD_DESCR     "Time. Period"
 
-// The temperature sensor does not support the 100 ms update rate
-#undef SENSOR_MIN_UPDATE_PERIOD
-#define SENSOR_MIN_UPDATE_PERIOD  300 // Minimum 300 milliseconds
+// The time sensor does not support the 100 ms update rate
+//#undef SENSOR_MIN_UPDATE_PERIOD
+//#define SENSOR_MIN_UPDATE_PERIOD  300 // Minimum 300 milliseconds
 
 /*********************************************************************
  * TYPEDEFS
@@ -112,7 +81,7 @@ static CONST uint8 sensorDataUUID[TI_UUID_SIZE] =
 {
   TI_UUID(SENSOR_DATA_UUID),
 };
-
+#if 0
 // Characteristic UUID: config
 static CONST uint8 sensorCfgUUID[TI_UUID_SIZE] =
 {
@@ -124,7 +93,7 @@ static CONST uint8 sensorPeriodUUID[TI_UUID_SIZE] =
 {
   TI_UUID(SENSOR_PERIOD_UUID),
 };
-
+#endif
 
 /*********************************************************************
  * EXTERNAL VARIABLES
@@ -158,7 +127,7 @@ static gattCharCfg_t sensorDataConfig[GATT_MAX_NUM_CONN];
 
 // Characteristic User Description: data
 static uint8 sensorDataUserDescr[] = SENSOR_DATA_DESCR;
-
+#if 0
 // Characteristic Properties: configuration
 static uint8 sensorCfgProps = GATT_PROP_READ | GATT_PROP_WRITE;
 
@@ -176,7 +145,7 @@ static uint8 sensorPeriod = SENSOR_MIN_UPDATE_PERIOD / SENSOR_PERIOD_RESOLUTION;
 
 // Characteristic User Description: period
 static uint8 sensorPeriodUserDescr[] = SENSOR_PERIOD_DESCR;
-
+#endif
 /*********************************************************************
  * Profile Attributes - Table
  */
@@ -221,53 +190,6 @@ static gattAttribute_t sensorAttrTable[] =
         0,
         sensorDataUserDescr
       },
-
-    // Characteristic Declaration
-    {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &sensorCfgProps
-    },
-
-      // Characteristic Value "Configuration"
-      {
-        { TI_UUID_SIZE, sensorCfgUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
-        0,
-        &sensorCfg
-      },
-
-      // Characteristic User Description
-      {
-        { ATT_BT_UUID_SIZE, charUserDescUUID },
-        GATT_PERMIT_READ,
-        0,
-        sensorCfgUserDescr
-      },
-     // Characteristic Declaration "Period"
-    {
-      { ATT_BT_UUID_SIZE, characterUUID },
-      GATT_PERMIT_READ,
-      0,
-      &sensorPeriodProps
-    },
-
-      // Characteristic Value "Period"
-      {
-        { TI_UUID_SIZE, sensorPeriodUUID },
-        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
-        0,
-        &sensorPeriod
-      },
-
-      // Characteristic User Description "Period"
-      {
-        { ATT_BT_UUID_SIZE, charUserDescUUID },
-        GATT_PERMIT_READ,
-        0,
-        sensorPeriodUserDescr
-      },
 };
 
 
@@ -297,7 +219,7 @@ static CONST gattServiceCBs_t sensorCBs =
  */
 
 /*********************************************************************
- * @fn      IRTemp_AddService
+ * @fn      Time_AddService
  *
  * @brief   Initializes the Sensor Profile service by registering
  *          GATT attributes with the GATT server.
@@ -307,7 +229,7 @@ static CONST gattServiceCBs_t sensorCBs =
  *
  * @return  Success or Failure
  */
-bStatus_t IRTemp_AddService( uint32 services )
+bStatus_t Time_AddService( uint32 services )
 {
   uint8 status = SUCCESS;
 
@@ -328,7 +250,7 @@ bStatus_t IRTemp_AddService( uint32 services )
 
 
 /*********************************************************************
- * @fn      IRTemp_RegisterAppCBs
+ * @fn      Time_RegisterAppCBs
  *
  * @brief   Registers the application callback function. Only call
  *          this function once.
@@ -337,7 +259,7 @@ bStatus_t IRTemp_AddService( uint32 services )
  *
  * @return  SUCCESS or bleAlreadyInRequestedMode
  */
-bStatus_t IRTemp_RegisterAppCBs( sensorCBs_t *appCallbacks )
+bStatus_t Time_RegisterAppCBs( sensorCBs_t *appCallbacks )
 {
   if ( sensor_AppCBs == NULL )
   {
@@ -353,7 +275,7 @@ bStatus_t IRTemp_RegisterAppCBs( sensorCBs_t *appCallbacks )
 }
 
 /*********************************************************************
- * @fn      IRTemp_SetParameter
+ * @fn      Time_SetParameter
  *
  * @brief   Set a parameter.
  *
@@ -366,7 +288,7 @@ bStatus_t IRTemp_RegisterAppCBs( sensorCBs_t *appCallbacks )
  *
  * @return  bStatus_t
  */
-bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
+bStatus_t Time_SetParameter( uint8 param, uint8 len, void *value )
 {
   bStatus_t ret = SUCCESS;
 
@@ -375,19 +297,20 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
     case SENSOR_DATA:
     if ( len == SENSOR_DATA_LEN )
     {
-      //copy to attribution table
       VOID osal_memcpy( sensorData, value, SENSOR_DATA_LEN );
+      //TODO: write to global variable of time
+      
       // See if Notification has been enabled
-      GATTServApp_ProcessCharCfg( sensorDataConfig, sensorData, FALSE,
-                                 sensorAttrTable, GATT_NUM_ATTRS( sensorAttrTable ),
-                                 INVALID_TASK_ID );
+      //GATTServApp_ProcessCharCfg( sensorDataConfig, sensorData, FALSE,
+      //                           sensorAttrTable, GATT_NUM_ATTRS( sensorAttrTable ),
+      //                           INVALID_TASK_ID );
     }
     else
     {
       ret = bleInvalidRange;
     }
     break;
-
+#if 0
     case SENSOR_CONF:
       if ( len == sizeof ( uint8 ) )
       {
@@ -409,7 +332,7 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
         ret = bleInvalidRange;
       }
       break;
-
+#endif
     default:
       ret = INVALIDPARAMETER;
       break;
@@ -419,7 +342,7 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
 }
 
 /*********************************************************************
- * @fn      IRTemp_GetParameter
+ * @fn      Time_GetParameter
  *
  * @brief   Get a Sensor Profile parameter.
  *
@@ -431,7 +354,7 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
  *
  * @return  bStatus_t
  */
-bStatus_t IRTemp_GetParameter( uint8 param, void *value )
+bStatus_t Time_GetParameter( uint8 param, void *value )
 {
   bStatus_t ret = SUCCESS;
 
@@ -440,7 +363,7 @@ bStatus_t IRTemp_GetParameter( uint8 param, void *value )
     case SENSOR_DATA:
       VOID osal_memcpy( value, sensorData, SENSOR_DATA_LEN );
       break;
-
+#if 0
     case SENSOR_CONF:
       *((uint8*)value) = sensorCfg;
       break;
@@ -448,7 +371,7 @@ bStatus_t IRTemp_GetParameter( uint8 param, void *value )
     case SENSOR_PERI:
       *((uint8*)value) = sensorPeriod;
       break;
-
+#endif
     default:
       ret = INVALIDPARAMETER;
       break;
@@ -504,13 +427,13 @@ static uint8 sensor_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
       *pLen = SENSOR_DATA_LEN;
       VOID osal_memcpy( pValue, pAttr->pValue, SENSOR_DATA_LEN );
       break;
-
+#if 0
     case SENSOR_CONFIG_UUID:
     case SENSOR_PERIOD_UUID:
       *pLen = 1;
       pValue[0] = *pAttr->pValue;
       break;
-
+#endif
     default:
       *pLen = 0;
       status = ATT_ERR_ATTR_NOT_FOUND;
@@ -556,8 +479,36 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
   {
     case SENSOR_DATA_UUID:
       // Should not get here
-      break;
+      
+      // Validate the value
+      // Make sure it's not a blob oper
+      if ( offset == 0 )
+      {
+        if ( len != 1 )
+        {
+          status = ATT_ERR_INVALID_VALUE_SIZE;
+        }
+      }
+      else
+      {
+        status = ATT_ERR_ATTR_NOT_LONG;
+      }
 
+      // Write the value
+      if ( status == SUCCESS )
+      {
+        uint8 *pCurValue = (uint8 *)pAttr->pValue;
+
+        *pCurValue = pValue[0];
+// sensorData is in attibution table
+        //if( pAttr->pValue == &sensorCfg )
+        //{
+          notifyApp = SENSOR_DATA;
+        //}
+        //Time_SetParameter(SENSOR_DATA, len, pValue);
+      }
+      break;
+#if 0
     case SENSOR_CONFIG_UUID:
       // Validate the value
       // Make sure it's not a blob oper
@@ -626,7 +577,7 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
       status = GATTServApp_ProcessCCCWriteReq( connHandle, pAttr, pValue, len,
                                               offset, GATT_CLIENT_CFG_NOTIFY );
       break;
-
+#endif
     default:
       // Should never get here!
       status = ATT_ERR_ATTR_NOT_FOUND;

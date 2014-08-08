@@ -82,6 +82,7 @@
 #include "testservice.h"
 #include "simplekeys.h"
 #include "ccservice.h"
+#include "timeservice.h"
 
 // Sensor drivers
 #include "sensorTag.h"
@@ -256,6 +257,12 @@ static uint16 sensorHumPeriod = HUM_DEFAULT_PERIOD;
 static uint16 sensorBarPeriod = BAR_DEFAULT_PERIOD;
 static uint16 sensorGyrPeriod = GYRO_DEFAULT_PERIOD;
 
+static uint32 timeData = 0;
+
+static irTempData_t* irTempHistroyBuffer;
+static uint16 irTempBufferHead;
+static uint16 irTempBufferTail;
+
 static uint8  sensorGyroAxes = 0;
 static bool   sensorGyroUpdateAxes = FALSE;
 static uint16 selfTestResult = 0;
@@ -274,6 +281,8 @@ static void readMagData( void );
 static void readBarData( void );
 static void readBarCalibration( void );
 static void readGyroData( void );
+//static void readTimeData( void );
+
 
 static void barometerChangeCB( uint8 paramID );
 static void irTempChangeCB( uint8 paramID );
@@ -281,6 +290,7 @@ static void accelChangeCB( uint8 paramID );
 static void humidityChangeCB( uint8 paramID);
 static void magnetometerChangeCB( uint8 paramID );
 static void gyroChangeCB( uint8 paramID );
+static void timeChangeCB( uint8 paramID );
 static void testChangeCB( uint8 paramID );
 static void ccChangeCB( uint8 paramID );
 static void gapRolesParamUpdateCB( uint16 connInterval, uint16 connSlaveLatency,uint16 connTimeout );
@@ -337,6 +347,11 @@ static sensorCBs_t sensorTag_MagnetometerCBs =
 static sensorCBs_t sensorTag_GyroCBs =
 {
   gyroChangeCB,             // Characteristic value change callback
+};
+
+static sensorCBs_t sensorTag_TimeCBs =
+{
+  timeChangeCB,             // Characteristic value change callback
 };
 
 static testCBs_t sensorTag_TestCBs =
@@ -447,6 +462,7 @@ void SensorTag_Init( uint8 task_id )
   Magnetometer_AddService( GATT_ALL_SERVICES );   // Magnetometer Service
   Barometer_AddService( GATT_ALL_SERVICES );      // Barometer Service
   Gyro_AddService( GATT_ALL_SERVICES );           // Gyro Service
+  Time_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   SK_AddService( GATT_ALL_SERVICES );             // Simple Keys Profile
   Test_AddService( GATT_ALL_SERVICES );           // Test Profile
   CcService_AddService( GATT_ALL_SERVICES );      // Connection Control Service
@@ -479,9 +495,14 @@ void SensorTag_Init( uint8 task_id )
   VOID Humidity_RegisterAppCBs( &sensorTag_HumidCBs );
   VOID Barometer_RegisterAppCBs( &sensorTag_BarometerCBs );
   VOID Gyro_RegisterAppCBs( &sensorTag_GyroCBs );
+  VOID Time_RegisterAppCBs( &sensorTag_TimeCBs );
   VOID Test_RegisterAppCBs( &sensorTag_TestCBs );
   VOID CcService_RegisterAppCBs( &sensorTag_ccCBs );
   VOID GAPRole_RegisterAppCBs( &paramUpdateCB );
+
+  // to save 16 sample data
+  irTempHistroyBuffer = osal_mem_alloc(16 * IRTEMPERATURE_DATA_LEN);
+  irTempBufferHead = irTempBufferTail = 0;
 
   // Enable clock divide on halt
   // This reduces active current while radio is active and CC254x MCU
@@ -729,6 +750,16 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
     return (events ^ ST_GYROSCOPE_SENSOR_EVT);
   }
 
+  //////////////////////////
+  //      Time       //
+  //////////////////////////
+  if ( events & ST_TIME_SENSOR_EVT )
+  {
+    timeData++;
+    osal_start_timerEx( sensorTag_TaskID, ST_TIME_SENSOR_EVT, 100);	// timeout = 100ms
+    return (events ^ ST_TIME_SENSOR_EVT);
+  }
+  
 #if defined ( PLUS_BROADCASTER )
   if ( events & ST_ADV_IN_CONNECTION_EVT )
   {
@@ -1104,11 +1135,36 @@ static void readBarCalibration( void )
  */
 static void readIrTempData( void )
 {
-  uint8 tData[IRTEMPERATURE_DATA_LEN];
+  uint8 tTimeData[IRTEMPERATURE_DATA_LEN];
+  uint8 tData[4];
+  uint32 tmp;
 
   if (HalIRTempRead(tData))
   {
-    IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tData);
+    tTimeData[0] = 9;	//type = timestamp
+    tTimeData[1] = 4;	//len
+    osal_memcpy( &tTimeData[2], &timeData, 4 );
+    tTimeData[6] = 3;	//type = data
+    tTimeData[7] = 4;	//len
+    osal_memcpy( &tTimeData[8], tData, 4 );
+    // if client is connected
+    IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tTimeData);
+    // else
+    {
+      if (irTempBufferHead == 15)
+	  	tmp = 0;
+      else
+	  	tmp = irTempBufferHead + 1;
+      if (tmp == irTempBufferTail)	 
+      	{
+	  	//TODO: save to flash
+	  	//if flash is full
+	  	irTempBufferHead = irTempBufferTail;
+      	}	
+	  	//TODO: save data to buffer irTempBufferHead indexes
+       	if (++irTempBufferHead == 16)
+		  irTempBufferHead = 0;
+    }
   }
 }
 
@@ -1427,6 +1483,23 @@ static void gyroChangeCB( uint8 paramID )
   }
 }
 
+static void timeChangeCB( uint8 paramID )
+{
+  uint32 newValue;
+  
+  switch (paramID) {
+  case SENSOR_CONF:
+    Time_GetParameter( SENSOR_DATA, &newValue );
+    timeData = newValue;	
+    osal_set_event( sensorTag_TaskID, ST_TIME_SENSOR_EVT);
+    break;
+
+  default:
+    // Should not get here
+    break;
+  }
+}
+
 /*********************************************************************
  * @fn      testChangeCB
  *
@@ -1608,6 +1681,10 @@ static void resetCharacteristicValue(uint16 servUuid, uint8 paramID, uint8 value
       Gyro_SetParameter( paramID, paramLen, pData);
       break;
 
+    case TIME_SERV_UUID:
+      Time_SetParameter( paramID, paramLen, pData);
+      break;
+
     default:
       // Should not get here
       break;
@@ -1648,6 +1725,8 @@ static void resetCharacteristicValues( void )
   resetCharacteristicValue( GYROSCOPE_SERV_UUID, SENSOR_DATA, 0, GYROSCOPE_DATA_LEN);
   resetCharacteristicValue( GYROSCOPE_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof( uint8 ));
   resetCharacteristicValue( GYROSCOPE_SERV_UUID, SENSOR_PERI, GYRO_DEFAULT_PERIOD / SENSOR_PERIOD_RESOLUTION, sizeof ( uint8 ));
+
+  resetCharacteristicValue( TIME_SERV_UUID, SENSOR_DATA, 0, TIME_DATA_LEN);
 }
 
 
