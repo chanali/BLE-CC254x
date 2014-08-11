@@ -177,6 +177,8 @@ static uint8 sensorPeriod = SENSOR_MIN_UPDATE_PERIOD / SENSOR_PERIOD_RESOLUTION;
 // Characteristic User Description: period
 static uint8 sensorPeriodUserDescr[] = SENSOR_PERIOD_DESCR;
 
+static uint8 irTempLinkStatus;
+
 /*********************************************************************
  * Profile Attributes - Table
  */
@@ -663,10 +665,17 @@ static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
            ( !linkDB_Up( connHandle ) ) ) )
     {
       GATTServApp_InitCharCfg( connHandle, sensorDataConfig );
+      irTempLinkStatus = LINKDB_STATUS_UPDATE_REMOVED;
     }
+    else
+       irTempLinkStatus = LINKDB_STATUS_UPDATE_NEW;
   }
 }
 
+uint8 IRTempGetLinkStatus(void)
+{
+  return irTempLinkStatus;
+}
 
 /*********************************************************************
 *********************************************************************/

@@ -64,7 +64,7 @@ extern "C"
 #define IRTEMPERATURE_SERVICE           0x00000001
 
 // Length of sensor data in bytes
-//#define IRTEMPERATURE_DATA_LEN          4
+#define IRTEMPERATURE_DATA_LEN_NO_TIME          4
 /* TLV(timestamp) + TLV(data) = 1(9)+1(4)+4+1(3)+1(4)+4 = 12 */
 #define IRTEMPERATURE_DATA_LEN          12
 
@@ -126,6 +126,7 @@ extern bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value );
  */
 extern bStatus_t IRTemp_GetParameter( uint8 param, void *value );
 
+extern uint8 IRTempGetLinkStatus(void);
 
 /*********************************************************************
 *********************************************************************/

@@ -1,78 +1,78 @@
-"C:\Texas Instruments\BLE-CC254x-1.4.0\Components\hal\target\CC2541ST\hal_led.c"
+"E:\8.Personal\3.Project\BLE-CC254x\Components\hal\target\CC2541ST\hal_led.c"
 -std=c99
 -ferror-limit=100
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\common
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\common
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\include
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\hal\include
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\hal\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\hal\target\CC2541ST
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\hal\target\CC2541ST
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\osal\include
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\osal\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\services\saddr
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\services\saddr
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\include
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\controller\phy
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\controller\phy
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\controller\include
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\controller\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\hci
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\hci
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\host
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\..\..\Components\ble\host
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\common\cc2540
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\common\cc2540
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\common\npi\npi_np
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\common\npi\npi_np
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\Roles
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\Roles
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\SensorProfile
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\SensorProfile
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\Keys
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\Keys
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\DevInfo
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\SensorTag\CC2541DB\..\..\Profiles\DevInfo
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 6.5\8051\inc
 -I
 C:\Program Files (x86)\IAR Systems\Embedded Workbench 6.5\8051\inc\clib
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\common
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\common
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\include
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\hal\include
+E:\8.Personal\3.Project\BLE-CC254x\Components\hal\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\hal\target\CC2541ST
+E:\8.Personal\3.Project\BLE-CC254x\Components\hal\target\CC2541ST
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\osal\include
+E:\8.Personal\3.Project\BLE-CC254x\Components\osal\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\services\saddr
+E:\8.Personal\3.Project\BLE-CC254x\Components\services\saddr
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\ble\include
+E:\8.Personal\3.Project\BLE-CC254x\Components\ble\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\ble\controller\phy
+E:\8.Personal\3.Project\BLE-CC254x\Components\ble\controller\phy
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\ble\controller\include
+E:\8.Personal\3.Project\BLE-CC254x\Components\ble\controller\include
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\ble\hci
+E:\8.Personal\3.Project\BLE-CC254x\Components\ble\hci
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Components\ble\host
+E:\8.Personal\3.Project\BLE-CC254x\Components\ble\host
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\common\cc2540
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\common\cc2540
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\common\npi\npi_np
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\common\npi\npi_np
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\Profiles\Roles
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\Profiles\Roles
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\Profiles\SensorProfile
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\Profiles\SensorProfile
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\Profiles\Keys
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\Profiles\Keys
 -I
-C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\Profiles\DevInfo
+E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\Profiles\DevInfo
 -DINT_HEAP_LEN=3072
 -DHALNODEBUG=0
 -DOSAL_CBTIMER_NUM_TASKS=1
@@ -377,8 +377,8 @@ C:\Texas Instruments\BLE-CC254x-1.4.0\Projects\ble\Profiles\DevInfo
 -D__PLAIN_INT_BITFIELD_IS_SIGNED__=1
 -D__HAS_LOCATED_DECLARATION__=1
 -D__IAR_COMPILERBASE__=593409
--D__DATE__="May 25 2014"
--D__TIME__="13:03:30"
+-D__DATE__="Aug 11 2014"
+-D__TIME__="14:20:25"
 -D__STDC__=1
 -D__STDC_VERSION__=199901L
 -D__STDC_HOSTED__=1

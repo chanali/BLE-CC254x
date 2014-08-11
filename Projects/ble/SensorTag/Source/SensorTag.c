@@ -42,6 +42,7 @@
  */
 
 #include "bcomdef.h"
+#include "linkdb.h"
 #include "OSAL.h"
 #include "OSAL_PwrMgr.h"
 
@@ -50,6 +51,7 @@
 #include "hal_led.h"
 #include "hal_keys.h"
 #include "hal_i2c.h"
+#include "hal_flash.h"
 
 #include "gatt.h"
 #include "hci.h"
@@ -168,6 +170,14 @@
 
 // System reset
 #define ST_SYS_RESET_DELAY                    3000
+
+#define DATA_TYPE_TIMESTAMP			9
+#define DATA_TYPE_SAMPLE_DATA		3
+
+#define IRTEMP_RINGBUFFER_DEPTH  16 
+
+#define IRTEMP_FLASH_PAGE_BASE  64  //check *.xcl(Linker Configuration file) first
+#define IRTEMP_FLASH_PAGE_CNT    16
 
 /*********************************************************************
  * TYPEDEFS
@@ -500,8 +510,8 @@ void SensorTag_Init( uint8 task_id )
   VOID CcService_RegisterAppCBs( &sensorTag_ccCBs );
   VOID GAPRole_RegisterAppCBs( &paramUpdateCB );
 
-  // to save 16 sample data
-  irTempHistroyBuffer = osal_mem_alloc(16 * IRTEMPERATURE_DATA_LEN);
+  // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
+  irTempHistroyBuffer = (irTempData_t*)osal_mem_alloc(IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN);
   irTempBufferHead = irTempBufferTail = 0;
 
   // Enable clock divide on halt
@@ -1124,6 +1134,48 @@ static void readBarCalibration( void )
   }
 }
 
+// refer to osal_snv.c
+static bStatus_t IRTempSaveDataToFlash( uint8 pg, uint16 offset, uint8 *data, uint16 len )
+{
+  uint16 addr = (offset >> 2) + ((uint16)pg << 9);
+
+  //if ( !failF )
+  //{
+    HalFlashWrite(addr, data, len);
+  //  verifyWordM(pg, offset, pBuf, 1);
+  //}
+  
+  return SUCCESS;
+}
+
+static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
+{
+  uint8 idx;
+  static bStatus_t flash_stat = FALSE;  // for debugging, avoid writing flash continually.
+  
+  if (irTempBufferHead == IRTEMP_RINGBUFFER_DEPTH-1)
+    idx = 0;
+  else
+    idx = irTempBufferHead + 1;
+  if (idx == irTempBufferTail)	 // ring buffer is full
+  {
+    if (flash_stat == FALSE)
+    {
+      IRTempSaveDataToFlash(IRTEMP_FLASH_PAGE_BASE, 0, (uint8*)irTempHistroyBuffer, \
+        IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN);
+      flash_stat = TRUE;
+    }  
+    irTempBufferHead = irTempBufferTail = 0;  // reuse all ring buffer
+  }
+  else
+  {
+    osal_memcpy(&irTempHistroyBuffer[idx], data, len);
+    irTempBufferHead = idx;
+  }
+
+  return SUCCESS;
+}
+	
 /*********************************************************************
  * @fn      readIrTempData
  *
@@ -1137,34 +1189,22 @@ static void readIrTempData( void )
 {
   uint8 tTimeData[IRTEMPERATURE_DATA_LEN];
   uint8 tData[4];
-  uint32 tmp;
+  int i = 0;
 
   if (HalIRTempRead(tData))
   {
-    tTimeData[0] = 9;	//type = timestamp
-    tTimeData[1] = 4;	//len
-    osal_memcpy( &tTimeData[2], &timeData, 4 );
-    tTimeData[6] = 3;	//type = data
-    tTimeData[7] = 4;	//len
-    osal_memcpy( &tTimeData[8], tData, 4 );
-    // if client is connected
-    IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tTimeData);
-    // else
-    {
-      if (irTempBufferHead == 15)
-	  	tmp = 0;
-      else
-	  	tmp = irTempBufferHead + 1;
-      if (tmp == irTempBufferTail)	 
-      	{
-	  	//TODO: save to flash
-	  	//if flash is full
-	  	irTempBufferHead = irTempBufferTail;
-      	}	
-	  	//TODO: save data to buffer irTempBufferHead indexes
-       	if (++irTempBufferHead == 16)
-		  irTempBufferHead = 0;
-    }
+    tTimeData[i++] = DATA_TYPE_TIMESTAMP;	//type = timestamp
+    tTimeData[i++] = TIME_DATA_LEN;	//len
+    osal_memcpy( &tTimeData[i], &timeData, TIME_DATA_LEN );
+    i += TIME_DATA_LEN;
+    tTimeData[i++] = DATA_TYPE_SAMPLE_DATA;	//type = data
+    tTimeData[i++] = IRTEMPERATURE_DATA_LEN_NO_TIME;	//len
+    osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN_NO_TIME );
+    i += IRTEMPERATURE_DATA_LEN_NO_TIME;	
+    if (IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) //?
+      IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tTimeData);
+    else
+      IRTempSaveDataToRam(tTimeData, i+1);
   }
 }
 
