@@ -57,7 +57,9 @@ extern "C"
 #define ST_START_DEVICE_EVT                              0x0001
 #define ST_IRTEMPERATURE_READ_EVT                        0x0002
 #define ST_ACCELEROMETER_SENSOR_EVT                      0x0004
+#if (SENSOR_HUMID == TRUE)
 #define ST_HUMIDITY_SENSOR_EVT                           0x0008
+#endif
 #define ST_MAGNETOMETER_SENSOR_EVT                       0x0010
 #define ST_BAROMETER_SENSOR_EVT                          0x0020
 #define ST_GYROSCOPE_SENSOR_EVT                          0x0040

@@ -107,7 +107,9 @@
 
 // How often to perform sensor reads (milliseconds)
 #define TEMP_DEFAULT_PERIOD                   1000
+#if (SENSOR_HUMID == TRUE)
 #define HUM_DEFAULT_PERIOD                    1000
+#endif
 #define BAR_DEFAULT_PERIOD                    1000
 #define MAG_DEFAULT_PERIOD                    2000
 #define ACC_DEFAULT_PERIOD                    1000
@@ -117,7 +119,9 @@
 #define TEMP_MEAS_DELAY                       275   // Conversion time 250 ms
 #define BAR_FSM_PERIOD                        80
 #define ACC_FSM_PERIOD                        20
+#if (SENSOR_HUMID == TRUE)
 #define HUM_FSM_PERIOD                        20
+#endif
 #define GYRO_STARTUP_TIME                     60    // Start-up time max. 50 ms
 
 // What is the advertising interval when device is discoverable (units of 625us, 160=100ms)
@@ -252,18 +256,24 @@ static bool   irTempEnabled = FALSE;
 static bool   magEnabled = FALSE;
 static uint8  accConfig = ST_CFG_SENSOR_DISABLE;
 static bool   barEnabled = FALSE;
+#if (SENSOR_HUMID == TRUE)
 static bool   humiEnabled = FALSE;
+#endif
 static bool   gyroEnabled = FALSE;
 
 static bool   barBusy = FALSE;
+#if (SENSOR_HUMID == TRUE)
 static uint8  humiState = 0;
+#endif
 
 static bool   sysResetRequest = FALSE;
 
 static uint16 sensorMagPeriod = MAG_DEFAULT_PERIOD;
 static uint16 sensorAccPeriod = ACC_DEFAULT_PERIOD;
 static uint16 sensorTmpPeriod = TEMP_DEFAULT_PERIOD;
+#if (SENSOR_HUMID == TRUE)
 static uint16 sensorHumPeriod = HUM_DEFAULT_PERIOD;
+#endif
 static uint16 sensorBarPeriod = BAR_DEFAULT_PERIOD;
 static uint16 sensorGyrPeriod = GYRO_DEFAULT_PERIOD;
 
@@ -285,7 +295,9 @@ static void sensorTag_ProcessOSALMsg( osal_event_hdr_t *pMsg );
 static void peripheralStateNotificationCB( gaprole_States_t newState );
 
 static void readIrTempData( void );
+#if (SENSOR_HUMID == TRUE)
 static void readHumData( void );
+#endif
 static void readAccData( void );
 static void readMagData( void );
 static void readBarData( void );
@@ -297,7 +309,9 @@ static void readGyroData( void );
 static void barometerChangeCB( uint8 paramID );
 static void irTempChangeCB( uint8 paramID );
 static void accelChangeCB( uint8 paramID );
+#if (SENSOR_HUMID == TRUE)
 static void humidityChangeCB( uint8 paramID);
+#endif
 static void magnetometerChangeCB( uint8 paramID );
 static void gyroChangeCB( uint8 paramID );
 static void timeChangeCB( uint8 paramID );
@@ -344,10 +358,12 @@ static sensorCBs_t sensorTag_AccelCBs =
   accelChangeCB,            // Characteristic value change callback
 };
 
+#if (SENSOR_HUMID == TRUE)
 static sensorCBs_t sensorTag_HumidCBs =
 {
   humidityChangeCB,         // Characteristic value change callback
 };
+#endif
 
 static sensorCBs_t sensorTag_MagnetometerCBs =
 {
@@ -468,7 +484,9 @@ void SensorTag_Init( uint8 task_id )
   DevInfo_AddService();                           // Device Information Service
   IRTemp_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   Accel_AddService (GATT_ALL_SERVICES );          // Accelerometer Service
+#if (SENSOR_HUMID == TRUE)
   Humidity_AddService (GATT_ALL_SERVICES );       // Humidity Service
+#endif  
   Magnetometer_AddService( GATT_ALL_SERVICES );   // Magnetometer Service
   Barometer_AddService( GATT_ALL_SERVICES );      // Barometer Service
   Gyro_AddService( GATT_ALL_SERVICES );           // Gyro Service
@@ -492,7 +510,9 @@ void SensorTag_Init( uint8 task_id )
 
   // Initialise sensor drivers
   HALIRTempInit();
+#if (SENSOR_HUMID == TRUE)  
   HalHumiInit();
+#endif
   HalMagInit();
   HalAccInit();
   HalBarInit();
@@ -502,7 +522,9 @@ void SensorTag_Init( uint8 task_id )
   VOID IRTemp_RegisterAppCBs( &sensorTag_IrTempCBs );
   VOID Magnetometer_RegisterAppCBs( &sensorTag_MagnetometerCBs );
   VOID Accel_RegisterAppCBs( &sensorTag_AccelCBs );
+#if (SENSOR_HUMID == TRUE)
   VOID Humidity_RegisterAppCBs( &sensorTag_HumidCBs );
+#endif
   VOID Barometer_RegisterAppCBs( &sensorTag_BarometerCBs );
   VOID Gyro_RegisterAppCBs( &sensorTag_GyroCBs );
   VOID Time_RegisterAppCBs( &sensorTag_TimeCBs );
@@ -625,6 +647,7 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
     return (events ^ ST_ACCELEROMETER_SENSOR_EVT);
   }
 
+#if (SENSOR_HUMID == TRUE)
   //////////////////////////
   //      Humidity        //
   //////////////////////////
@@ -653,6 +676,7 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
 
     return (events ^ ST_HUMIDITY_SENSOR_EVT);
   }
+#endif
 
   //////////////////////////
   //      Magnetometer    //
@@ -963,11 +987,13 @@ static void resetSensorSetup (void)
     barEnabled = FALSE;
   }
 
+#if (SENSOR_HUMID == TRUE)
   if (humiEnabled)
   {
     HalHumiInit();
     humiEnabled = FALSE;
   }
+#endif
 
   // Reset internal states
   sensorGyroAxes = 0;
@@ -1075,6 +1101,7 @@ static void readMagData( void )
   }
 }
 
+#if (SENSOR_HUMID == TRUE)
 /*********************************************************************
  * @fn      readHumData
  *
@@ -1093,6 +1120,7 @@ static void readHumData(void)
     Humidity_SetParameter( SENSOR_DATA, HUMIDITY_DATA_LEN, hData);
   }
 }
+#endif
 
 /*********************************************************************
  * @fn      readBarData
@@ -1427,6 +1455,7 @@ static void magnetometerChangeCB( uint8 paramID )
   }
 }
 
+#if (SENSOR_HUMID == TRUE)
 /*********************************************************************
  * @fn      humidityChangeCB
  *
@@ -1475,6 +1504,7 @@ static void humidityChangeCB( uint8 paramID )
     break;
   }
 }
+#endif
 
 /*********************************************************************
  * @fn      gyroChangeCB
@@ -1709,9 +1739,11 @@ static void resetCharacteristicValue(uint16 servUuid, uint8 paramID, uint8 value
       Magnetometer_SetParameter( paramID, paramLen, pData);
       break;
 
+#if (SENSOR_HUMID == TRUE)
     case HUMIDITY_SERV_UUID:
       Humidity_SetParameter( paramID, paramLen, pData);
       break;
+#endif
 
     case BAROMETER_SERV_UUID:
       Barometer_SetParameter( paramID, paramLen, pData);
@@ -1750,9 +1782,11 @@ static void resetCharacteristicValues( void )
   resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));
   resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_PERI, ACC_DEFAULT_PERIOD / SENSOR_PERIOD_RESOLUTION, sizeof ( uint8 ));
 
+#if (SENSOR_HUMID == TRUE)
   resetCharacteristicValue( HUMIDITY_SERV_UUID, SENSOR_DATA, 0, HUMIDITY_DATA_LEN);
   resetCharacteristicValue( HUMIDITY_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));
   resetCharacteristicValue( HUMIDITY_SERV_UUID, SENSOR_PERI, HUM_DEFAULT_PERIOD / SENSOR_PERIOD_RESOLUTION, sizeof ( uint8 ));
+#endif
 
   resetCharacteristicValue( MAGNETOMETER_SERV_UUID, SENSOR_DATA, 0, MAGNETOMETER_DATA_LEN);
   resetCharacteristicValue( MAGNETOMETER_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));

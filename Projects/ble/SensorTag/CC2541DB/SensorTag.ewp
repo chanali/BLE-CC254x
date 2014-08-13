@@ -287,6 +287,7 @@
           <state>HAL_LED=TRUE</state>
           <state>HAL_I2C=TRUE</state>
           <state>HAL_ADC=FALSE</state>
+          <state>SENSOR_HUMID=FLASE</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
