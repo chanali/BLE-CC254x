@@ -181,7 +181,7 @@
 #define IRTEMP_RINGBUFFER_DEPTH  16 
 
 #define IRTEMP_FLASH_PAGE_BASE  64  //check *.xcl(Linker Configuration file) first
-#define IRTEMP_FLASH_PAGE_CNT    16
+#define IRTEMP_FLASH_PAGE_CNT    4
 
 /*********************************************************************
  * TYPEDEFS
@@ -282,6 +282,12 @@ static uint32 timeData = 0;
 static irTempData_t* irTempHistroyBuffer;
 static uint16 irTempBufferHead;
 static uint16 irTempBufferTail;
+
+//static bool irTempFlashValid = FALSE;
+static uint32 irTempFlashBegin;
+static uint32 irTempFlashHead;
+static uint32 irTempFlashTail;
+static uint32 irTempFlashEnd;
 
 static uint8  sensorGyroAxes = 0;
 static bool   sensorGyroUpdateAxes = FALSE;
@@ -416,6 +422,7 @@ static gapRolesParamUpdateCB_t paramUpdateCB =
 void SensorTag_Init( uint8 task_id )
 {
   sensorTag_TaskID = task_id;
+  int i;
 
   // Setup the GAP
   VOID GAP_SetParamValue( TGAP_CONN_PAUSE_PERIPHERAL, DEFAULT_CONN_PAUSE_PERIPHERAL );
@@ -535,7 +542,12 @@ void SensorTag_Init( uint8 task_id )
   // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
   irTempHistroyBuffer = (irTempData_t*)osal_mem_alloc(IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN);
   irTempBufferHead = irTempBufferTail = 0;
-
+  for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
+    HalFlashErase(i);
+  //irTempFlashValid = TRUE;
+  irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE;
+  irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;
+  
   // Enable clock divide on halt
   // This reduces active current while radio is active and CC254x MCU
   // is halted
@@ -1162,16 +1174,52 @@ static void readBarCalibration( void )
   }
 }
 
-// refer to osal_snv.c
-static bStatus_t IRTempSaveDataToFlash( uint8 pg, uint16 offset, uint8 *data, uint16 len )
+bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *len)
 {
-  uint16 addr = (offset >> 2) + ((uint16)pg << 9);
+  int i;
+  
+  if ((irTempFlashHead - irTempFlashTail) >= IRTEMPERATURE_DATA_LEN)
+  {
+     *len = IRTEMPERATURE_DATA_LEN;
+     HalFlashRead(irTempFlashTail>>11, irTempFlashTail&0x7ff, data, IRTEMPERATURE_DATA_LEN);
+     irTempFlashTail += IRTEMPERATURE_DATA_LEN;
+  }else{
+     *len = IRTEMPERATURE_DATA_LEN;
+     VOID osal_memset( data, 0, IRTEMPERATURE_DATA_LEN );   // indicate all data was fetched
+     if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN)
+     {
+       for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
+         HalFlashErase(i);
+       irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE;
+       irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;
+     }
+  }
+
+  return SUCCESS;
+}
+
+/*
+refer to osal_snv.c and flash controller in <CC253x4x User's Guide>
+The flash memory is divided into 2048-byte or 1024-byte flash pages. A flash page is the smallest
+erasable unit in the memory, whereas a 32-bit word is the smallest writable unit that can be written to the
+flash.
+*/
+static bStatus_t IRTempSaveDataToFlash( uint8 *data, uint16 len )
+{
+  // for word(4 bytes) alignment and page is 512 words(2048 bytes)
+  //uint16 addr = (offset >> 2) + ((uint16)pg << 9);
+  //uint16 cnt = len >> 2;
+
+  uint32 addr = irTempFlashHead >> 2;
+  uint16 cnt = len >> 2;
 
   //if ( !failF )
   //{
-    HalFlashWrite(addr, data, len);
+    HalFlashWrite(addr, data, cnt);
   //  verifyWordM(pg, offset, pBuf, 1);
   //}
+
+  irTempFlashHead += len;
   
   return SUCCESS;
 }
@@ -1179,7 +1227,7 @@ static bStatus_t IRTempSaveDataToFlash( uint8 pg, uint16 offset, uint8 *data, ui
 static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
 {
   uint8 idx;
-  static bStatus_t flash_stat = FALSE;  // for debugging, avoid writing flash continually.
+  //static bStatus_t flash_stat = FALSE;  // for debugging, avoid writing flash continually.
   
   if (irTempBufferHead == IRTEMP_RINGBUFFER_DEPTH-1)
     idx = 0;
@@ -1187,12 +1235,9 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
     idx = irTempBufferHead + 1;
   if (idx == irTempBufferTail)	 // ring buffer is full
   {
-    if (flash_stat == FALSE)
-    {
-      IRTempSaveDataToFlash(IRTEMP_FLASH_PAGE_BASE, 0, (uint8*)irTempHistroyBuffer, \
-        IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN);
-      flash_stat = TRUE;
-    }  
+    if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN)
+      IRTempSaveDataToFlash((uint8*)irTempHistroyBuffer, IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN);
+
     irTempBufferHead = irTempBufferTail = 0;  // reuse all ring buffer
   }
   else

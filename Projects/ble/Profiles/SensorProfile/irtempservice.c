@@ -74,6 +74,8 @@
 #undef SENSOR_MIN_UPDATE_PERIOD
 #define SENSOR_MIN_UPDATE_PERIOD  300 // Minimum 300 milliseconds
 
+#define SENSOR_CFG_READ_HISDATA  0x80
+
 /*********************************************************************
  * TYPEDEFS
  */
@@ -282,6 +284,7 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
                                  uint8 *pValue, uint8 len, uint16 offset );
 static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType );
 
+extern bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *len);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -503,8 +506,16 @@ static uint8 sensor_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
     // No need for "GATT_SERVICE_UUID" or "GATT_CLIENT_CHAR_CFG_UUID" cases;
     // gattserverapp handles those reads
     case SENSOR_DATA_UUID:
+      // read history data
+      if ((sensorCfg & SENSOR_CFG_READ_HISDATA) == SENSOR_CFG_READ_HISDATA)
+      {
+        IRTempReadRecordFromFlash(pValue, pLen);
+      }
+      else
+      {
       *pLen = SENSOR_DATA_LEN;
       VOID osal_memcpy( pValue, pAttr->pValue, SENSOR_DATA_LEN );
+       }
       break;
 
     case SENSOR_CONFIG_UUID:
