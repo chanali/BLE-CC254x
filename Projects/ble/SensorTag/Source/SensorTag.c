@@ -180,7 +180,8 @@
 
 #define IRTEMP_RINGBUFFER_DEPTH  16 
 
-#define IRTEMP_FLASH_PAGE_BASE  64  //check *.xcl(Linker Configuration file) first
+//2k per page
+#define IRTEMP_FLASH_PAGE_BASE  80  //check *.xcl(Linker Configuration file) first
 #define IRTEMP_FLASH_PAGE_CNT    4
 
 /*********************************************************************
@@ -490,6 +491,7 @@ void SensorTag_Init( uint8 task_id )
   GATTServApp_AddService( GATT_ALL_SERVICES );    // GATT attributes
   DevInfo_AddService();                           // Device Information Service
   IRTemp_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
+  Time_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   Accel_AddService (GATT_ALL_SERVICES );          // Accelerometer Service
 #if (SENSOR_HUMID == TRUE)
   Humidity_AddService (GATT_ALL_SERVICES );       // Humidity Service
@@ -497,7 +499,6 @@ void SensorTag_Init( uint8 task_id )
   Magnetometer_AddService( GATT_ALL_SERVICES );   // Magnetometer Service
   Barometer_AddService( GATT_ALL_SERVICES );      // Barometer Service
   Gyro_AddService( GATT_ALL_SERVICES );           // Gyro Service
-  Time_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   SK_AddService( GATT_ALL_SERVICES );             // Simple Keys Profile
   Test_AddService( GATT_ALL_SERVICES );           // Test Profile
   CcService_AddService( GATT_ALL_SERVICES );      // Connection Control Service
@@ -540,13 +541,13 @@ void SensorTag_Init( uint8 task_id )
   VOID GAPRole_RegisterAppCBs( &paramUpdateCB );
 
   // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
-  irTempHistroyBuffer = (irTempData_t*)osal_mem_alloc(IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN);
-  irTempBufferHead = irTempBufferTail = 0;
-  for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
-    HalFlashErase(i);
+//  irTempHistroyBuffer = (irTempData_t*)osal_mem_alloc(IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN);
+//  irTempBufferHead = irTempBufferTail = 0;
+//  for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
+//    HalFlashErase(i);
   //irTempFlashValid = TRUE;
-  irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE;
-  irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;
+//  irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE;
+//  irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
   
   // Enable clock divide on halt
   // This reduces active current while radio is active and CC254x MCU
@@ -1274,10 +1275,10 @@ static void readIrTempData( void )
     tTimeData[i++] = IRTEMPERATURE_DATA_LEN_NO_TIME;	//len
     osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN_NO_TIME );
     i += IRTEMPERATURE_DATA_LEN_NO_TIME;	
-    if (IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) //?
+    //if (IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) //?
       IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tTimeData);
-    else
-      IRTempSaveDataToRam(tTimeData, i+1);
+    //else
+    //  IRTempSaveDataToRam(tTimeData, i+1);
   }
 }
 
@@ -1603,7 +1604,7 @@ static void timeChangeCB( uint8 paramID )
   uint32 newValue;
   
   switch (paramID) {
-  case SENSOR_CONF:
+  case SENSOR_DATA:
     Time_GetParameter( SENSOR_DATA, &newValue );
     timeData = newValue;	
     osal_set_event( sensorTag_TaskID, ST_TIME_SENSOR_EVT);

@@ -9,11 +9,16 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-1772665617
+Checksum=-695746471
 [CallStack]
 ShowArgs=0
 [Disassembly]
 MixedMode=1
+[Breakpoints]
+Count=0
+[ChipconEmu]
+Stop timers on halt=0
+Leave target running=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -21,11 +26,9 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
-[Breakpoints]
-Count=0
-[ChipconEmu]
-Stop timers on halt=0
-Leave target running=1
 [Aliases]
-Count=0
+A0=_ "E:\8.Personal\3.Project\BLE-CC254x\Projects\ble\Profiles\Roles\gap.c" "F:\8.Personal\3.Project\BLE-CC254x\Projects\ble\Profiles\Roles\gap.c"
+Count=1
 SuppressDialog=0
+[BreakpointUsageDialog]
+Placement=_ 418 351 863 633

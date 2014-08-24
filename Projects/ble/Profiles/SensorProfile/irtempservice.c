@@ -683,6 +683,7 @@ static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
   }
 }
 
+//if link is down, client will not issue R/W command.
 uint8 IRTempGetLinkStatus(void)
 {
   return irTempLinkStatus;

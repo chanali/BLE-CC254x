@@ -170,7 +170,7 @@ static gattAttribute_t sensorAttrTable[] =
       // Characteristic Value "Data"
       {
         { TI_UUID_SIZE, sensorDataUUID },
-        GATT_PERMIT_READ,
+        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
         sensorData
       },
@@ -482,6 +482,7 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
       
       // Validate the value
       // Make sure it's not a blob oper
+#if 0      
       if ( offset == 0 )
       {
         if ( len != 1 )
@@ -493,13 +494,14 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
       {
         status = ATT_ERR_ATTR_NOT_LONG;
       }
-
+#endif
       // Write the value
       if ( status == SUCCESS )
       {
         uint8 *pCurValue = (uint8 *)pAttr->pValue;
 
-        *pCurValue = pValue[0];
+        //*pCurValue = pValue[0];
+		osal_memcpy(pCurValue, pValue, len);
 // sensorData is in attibution table
         //if( pAttr->pValue == &sensorCfg )
         //{
