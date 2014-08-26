@@ -278,7 +278,7 @@ static uint16 sensorHumPeriod = HUM_DEFAULT_PERIOD;
 static uint16 sensorBarPeriod = BAR_DEFAULT_PERIOD;
 static uint16 sensorGyrPeriod = GYRO_DEFAULT_PERIOD;
 
-static uint32 timeData = 0;
+extern uint32 *timeData;
 
 static uint8 irTempHistroyBuffer[IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN];
 static irTempData_t* irTempHistroyRecord;
@@ -424,7 +424,7 @@ static gapRolesParamUpdateCB_t paramUpdateCB =
 void SensorTag_Init( uint8 task_id )
 {
   sensorTag_TaskID = task_id;
-  int i;
+  int pg;
 
   // Setup the GAP
   VOID GAP_SetParamValue( TGAP_CONN_PAUSE_PERIPHERAL, DEFAULT_CONN_PAUSE_PERIPHERAL );
@@ -544,11 +544,27 @@ void SensorTag_Init( uint8 task_id )
   // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
   irTempHistroyRecord = (irTempData_t*)irTempHistroyBuffer;
   irTempBufferHead = irTempBufferTail = 0;
-  for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
-    HalFlashErase(i);
+  for (pg=IRTEMP_FLASH_PAGE_BASE; pg<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; pg++)
+  {
+    uint16 offset;
+    uint8 tmp;
+    bool n_erased = 0;
+	
+    HalFlashErase(pg);
+    for (offset = 0; offset < HAL_FLASH_PAGE_SIZE; offset ++)
+    {
+      HalFlashRead(pg, offset, &tmp, 1);
+      if (tmp != 0xFF)
+      {
+        n_erased = 1;
+        break;
+      }
+    }
+    if (n_erased) while(1);
+  }	
   //irTempFlashValid = TRUE;
-  irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE*HAL_FLASH_PAGE_SIZE;
-  irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
+  irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+  irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
   
   // Enable clock divide on halt
   // This reduces active current while radio is active and CC254x MCU
@@ -803,7 +819,7 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
   //////////////////////////
   if ( events & ST_TIME_SENSOR_EVT )
   {
-    timeData++;
+    *timeData += 1;
     osal_start_timerEx( sensorTag_TaskID, ST_TIME_SENSOR_EVT, 100);	// timeout = 100ms
     return (events ^ ST_TIME_SENSOR_EVT);
   }
@@ -1270,7 +1286,7 @@ static void readIrTempData( void )
   {
     tTimeData[i++] = DATA_TYPE_TIMESTAMP;	//type = timestamp
     tTimeData[i++] = TIME_DATA_LEN;	//len
-    osal_memcpy( &tTimeData[i], &timeData, TIME_DATA_LEN );
+    osal_memcpy( &tTimeData[i], timeData, TIME_DATA_LEN );
     i += TIME_DATA_LEN;
     tTimeData[i++] = DATA_TYPE_SAMPLE_DATA;	//type = data
     tTimeData[i++] = IRTEMPERATURE_DATA_LEN_NO_TIME;	//len
@@ -1607,7 +1623,7 @@ static void timeChangeCB( uint8 paramID )
   switch (paramID) {
   case SENSOR_DATA:
     Time_GetParameter( SENSOR_DATA, &newValue );
-    timeData = newValue;	
+    *timeData = newValue;	
     osal_set_event( sensorTag_TaskID, ST_TIME_SENSOR_EVT);
     break;
 

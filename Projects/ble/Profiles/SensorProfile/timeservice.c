@@ -118,6 +118,7 @@ static CONST gattAttrType_t sensorService = { TI_UUID_SIZE, sensorServiceUUID };
 
 // Characteristic Value: data
 static uint8 sensorData[SENSOR_DATA_LEN] = { 0, 0, 0, 0};
+uint32 *timeData = (uint32*)sensorData;
 
 // Characteristic Properties: data
 static uint8 sensorDataProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
