@@ -280,7 +280,8 @@ static uint16 sensorGyrPeriod = GYRO_DEFAULT_PERIOD;
 
 static uint32 timeData = 0;
 
-static irTempData_t* irTempHistroyBuffer;
+static uint8 irTempHistroyBuffer[IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN];
+static irTempData_t* irTempHistroyRecord;
 static uint16 irTempBufferHead;
 static uint16 irTempBufferTail;
 
@@ -541,13 +542,13 @@ void SensorTag_Init( uint8 task_id )
   VOID GAPRole_RegisterAppCBs( &paramUpdateCB );
 
   // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
-//  irTempHistroyBuffer = (irTempData_t*)osal_mem_alloc(IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN);
-//  irTempBufferHead = irTempBufferTail = 0;
-//  for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
-//    HalFlashErase(i);
+  irTempHistroyRecord = (irTempData_t*)irTempHistroyBuffer;
+  irTempBufferHead = irTempBufferTail = 0;
+  for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
+    HalFlashErase(i);
   //irTempFlashValid = TRUE;
-//  irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE;
-//  irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
+  irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE*HAL_FLASH_PAGE_SIZE;
+  irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
   
   // Enable clock divide on halt
   // This reduces active current while radio is active and CC254x MCU
@@ -1237,13 +1238,13 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
   if (idx == irTempBufferTail)	 // ring buffer is full
   {
     if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN)
-      IRTempSaveDataToFlash((uint8*)irTempHistroyBuffer, IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN);
+      IRTempSaveDataToFlash(irTempHistroyBuffer, IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN);
 
     irTempBufferHead = irTempBufferTail = 0;  // reuse all ring buffer
   }
   else
   {
-    osal_memcpy(&irTempHistroyBuffer[idx], data, len);
+    osal_memcpy(&irTempHistroyRecord[idx], data, len);
     irTempBufferHead = idx;
   }
 
