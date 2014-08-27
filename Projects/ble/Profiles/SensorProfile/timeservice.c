@@ -616,7 +616,7 @@ static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
          ( ( changeType == LINKDB_STATUS_UPDATE_STATEFLAGS ) &&
            ( !linkDB_Up( connHandle ) ) ) )
     {
-      GATTServApp_InitCharCfg( connHandle, sensorDataConfig );
+      //GATTServApp_InitCharCfg( connHandle, sensorDataConfig );
     }
   }
 }

@@ -179,6 +179,7 @@
 #define DATA_TYPE_SAMPLE_DATA		3
 
 #define IRTEMP_RINGBUFFER_DEPTH  16 
+#define IRTEMP_RINGBUFFER_SIZE ((IRTEMP_RINGBUFFER_DEPTH)*(IRTEMPERATURE_DATA_LEN))
 
 //2k per page
 #define IRTEMP_FLASH_PAGE_BASE  80  //check *.xcl(Linker Configuration file) first
@@ -280,7 +281,10 @@ static uint16 sensorGyrPeriod = GYRO_DEFAULT_PERIOD;
 
 extern uint32 *timeData;
 
+//#pragma data_alignment=4
+//#pragma pack (4)
 static uint8 irTempHistroyBuffer[IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN];
+//#pragma
 static irTempData_t* irTempHistroyRecord;
 static uint16 irTempBufferHead;
 static uint16 irTempBufferTail;
@@ -492,7 +496,6 @@ void SensorTag_Init( uint8 task_id )
   GATTServApp_AddService( GATT_ALL_SERVICES );    // GATT attributes
   DevInfo_AddService();                           // Device Information Service
   IRTemp_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
-  Time_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   Accel_AddService (GATT_ALL_SERVICES );          // Accelerometer Service
 #if (SENSOR_HUMID == TRUE)
   Humidity_AddService (GATT_ALL_SERVICES );       // Humidity Service
@@ -500,6 +503,7 @@ void SensorTag_Init( uint8 task_id )
   Magnetometer_AddService( GATT_ALL_SERVICES );   // Magnetometer Service
   Barometer_AddService( GATT_ALL_SERVICES );      // Barometer Service
   Gyro_AddService( GATT_ALL_SERVICES );           // Gyro Service
+  Time_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   SK_AddService( GATT_ALL_SERVICES );             // Simple Keys Profile
   Test_AddService( GATT_ALL_SERVICES );           // Test Profile
   CcService_AddService( GATT_ALL_SERVICES );      // Connection Control Service
@@ -1192,24 +1196,24 @@ static void readBarCalibration( void )
   }
 }
 
-bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *len)
+bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *pLen)
 {
   int i;
   
   if ((irTempFlashHead - irTempFlashTail) >= IRTEMPERATURE_DATA_LEN)
   {
-     *len = IRTEMPERATURE_DATA_LEN;
+     *pLen = IRTEMPERATURE_DATA_LEN;
      HalFlashRead(irTempFlashTail>>11, irTempFlashTail&0x7ff, data, IRTEMPERATURE_DATA_LEN);
      irTempFlashTail += IRTEMPERATURE_DATA_LEN;
   }else{
-     *len = IRTEMPERATURE_DATA_LEN;
-     VOID osal_memset( data, 0, IRTEMPERATURE_DATA_LEN );   // indicate all data was fetched
-     if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN)
-     {
-       for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
-         HalFlashErase(i);
-       irTempFlashHead = irTempFlashTail = irTempFlashBegin = IRTEMP_FLASH_PAGE_BASE;
-       irTempFlashEnd = irTempFlashBegin + HAL_FLASH_PAGE_SIZE*IRTEMP_FLASH_PAGE_CNT;
+    *pLen = IRTEMPERATURE_DATA_LEN;
+    VOID osal_memset( data, 0, IRTEMPERATURE_DATA_LEN );   // indicate all data was fetched
+    if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN)
+    {
+      for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
+        HalFlashErase(i);
+      irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+      irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;
      }
   }
 
@@ -1233,11 +1237,11 @@ static bStatus_t IRTempSaveDataToFlash( uint8 *data, uint16 len )
 
   //if ( !failF )
   //{
-    HalFlashWrite(addr, data, cnt);
+    HalFlashWrite((uint16)addr, data, cnt); // in unit of word
   //  verifyWordM(pg, offset, pBuf, 1);
   //}
 
-  irTempFlashHead += len;
+  //irTempFlashHead += len;
   
   return SUCCESS;
 }
@@ -1247,22 +1251,18 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
   uint8 idx;
   //static bStatus_t flash_stat = FALSE;  // for debugging, avoid writing flash continually.
   
-  if (irTempBufferHead == IRTEMP_RINGBUFFER_DEPTH-1)
-    idx = 0;
-  else
-    idx = irTempBufferHead + 1;
+  idx =  (irTempBufferHead == IRTEMP_RINGBUFFER_DEPTH-1)?0:(irTempBufferHead + 1);
   if (idx == irTempBufferTail)	 // ring buffer is full
   {
-    if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN)
-      IRTempSaveDataToFlash(irTempHistroyBuffer, IRTEMP_RINGBUFFER_DEPTH*IRTEMPERATURE_DATA_LEN);
-
+    if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_SIZE)
+    {
+      IRTempSaveDataToFlash(irTempHistroyBuffer, IRTEMP_RINGBUFFER_SIZE);
+      irTempFlashHead += IRTEMP_RINGBUFFER_SIZE;
+    }  
     irTempBufferHead = irTempBufferTail = 0;  // reuse all ring buffer
   }
-  else
-  {
-    osal_memcpy(&irTempHistroyRecord[idx], data, len);
-    irTempBufferHead = idx;
-  }
+  osal_memcpy(&irTempHistroyRecord[irTempBufferHead], data, len);
+  irTempBufferHead = (irTempBufferHead == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempBufferHead+1);
 
   return SUCCESS;
 }
@@ -1292,10 +1292,10 @@ static void readIrTempData( void )
     tTimeData[i++] = IRTEMPERATURE_DATA_LEN_NO_TIME;	//len
     osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN_NO_TIME );
     i += IRTEMPERATURE_DATA_LEN_NO_TIME;	
-    //if (IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) //?
+    if (IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) //?
       IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tTimeData);
-    //else
-    //  IRTempSaveDataToRam(tTimeData, i+1);
+    else
+      IRTempSaveDataToRam(tTimeData, i+1);
   }
 }
 

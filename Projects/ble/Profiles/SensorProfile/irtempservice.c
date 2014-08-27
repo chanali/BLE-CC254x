@@ -179,7 +179,7 @@ static uint8 sensorPeriod = SENSOR_MIN_UPDATE_PERIOD / SENSOR_PERIOD_RESOLUTION;
 // Characteristic User Description: period
 static uint8 sensorPeriodUserDescr[] = SENSOR_PERIOD_DESCR;
 
-static uint8 irTempLinkStatus;
+static uint8 irTempLinkStatus = LINKDB_STATUS_UPDATE_NEW;
 
 /*********************************************************************
  * Profile Attributes - Table
