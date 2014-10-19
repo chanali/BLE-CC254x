@@ -300,6 +300,9 @@ static bool   sensorGyroUpdateAxes = FALSE;
 static uint16 selfTestResult = 0;
 static bool   testMode = FALSE;
 
+static uint32 flashAddr;
+uint8 flashData[APO_TEST_DATA_LEN];
+
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -429,6 +432,8 @@ void SensorTag_Init( uint8 task_id )
 {
   sensorTag_TaskID = task_id;
   int pg;
+  //uint32 flash_w_data = 0x5a5a5a5a;
+  //uint32 flash_r_data;
 
   // Setup the GAP
   VOID GAP_SetParamValue( TGAP_CONN_PAUSE_PERIPHERAL, DEFAULT_CONN_PAUSE_PERIPHERAL );
@@ -566,6 +571,13 @@ void SensorTag_Init( uint8 task_id )
     }
     if (n_erased) while(1);
   }	
+  // successful to test it
+  // write data in unit of byte in ram and in unit of word(4 bytes) in flash
+  //HalFlashWrite((uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE/4 /* in flash */, 
+  //	(uint8 *)&flash_w_data /* in ram */,1 /* in flash */);
+  // read data in unit of byte even for flash.
+  //HalFlashRead(IRTEMP_FLASH_PAGE_BASE, 0, (uint8*)&flash_r_data, 4);
+
   //irTempFlashValid = TRUE;
   irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
   irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
@@ -1689,6 +1701,14 @@ static void testChangeCB( uint8 paramID )
       newValue = 0x00;
       Test_SetParameter( TEST_CONF_ATTR, 1, &newValue );
     }
+  }
+  
+  if( paramID == APO_TEST_DATA_ATTR )
+  {
+    uint8 newValue[4];
+	Test_GetParameter( APO_TEST_DATA_ATTR, newValue );
+	flashAddr = *(uint32*)newValue;
+	HalFlashRead(flashAddr/HAL_FLASH_PAGE_SIZE, flashAddr%HAL_FLASH_PAGE_SIZE, flashData, APO_TEST_DATA_LEN);
   }
 }
 

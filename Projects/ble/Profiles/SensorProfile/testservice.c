@@ -82,6 +82,11 @@ CONST uint8 testConfUUID[TI_UUID_SIZE] =
   TI_UUID(TEST_CONF_UUID)
 };
 
+// Config Self-defined data UUID
+CONST uint8 apo_testDataUUID[TI_UUID_SIZE] =
+{
+  TI_UUID(APO_TEST_DATA_UUID)
+};
 
 /*********************************************************************
  * EXTERNAL VARIABLES
@@ -125,7 +130,18 @@ static uint8 testConf = 0x00;
 // Test Profile Config Characteristic User Description
 static uint8 testConfUserDesp[] = "Test Config";
 
+// ApeirOne self defined test {
+// Test Profile Config Characteristic Properties
+static uint8 apo_testDataProps = GATT_PROP_READ | GATT_PROP_WRITE;
 
+// Test Profile Config Characteristic Value
+static uint8 apo_testData[APO_TEST_DATA_LEN] = {0,0,0,0};
+
+// Test Profile Config Characteristic User Description
+static uint8 apo_testDataUserDesp[] = "ApeirOne self-defined test";
+// }
+
+extern uint8 flashData[APO_TEST_DATA_LEN];
 /*********************************************************************
  * Profile Attributes - Table
  */
@@ -186,7 +202,30 @@ static gattAttribute_t testAttrTbl[] =
         0,
         testConfUserDesp
       },
-};
+      
+    // Config Characteristic Declaration
+    {
+      { ATT_BT_UUID_SIZE, characterUUID },
+      GATT_PERMIT_READ,
+      0,
+      &apo_testDataProps
+    },
+
+      // Config Characteristic Value
+      {
+        { TI_UUID_SIZE, apo_testDataUUID },
+        GATT_PERMIT_READ | GATT_PERMIT_WRITE,
+        0,
+        apo_testData	// for flash R/W in current code, flash offset in bytes
+      },
+
+      // Config Characteristic User Description
+      {
+        { ATT_BT_UUID_SIZE, charUserDescUUID },
+        GATT_PERMIT_READ,
+        0,
+        apo_testDataUserDesp
+      },};
 
 
 /*********************************************************************
@@ -353,6 +392,10 @@ bStatus_t Test_GetParameter( uint8 param, void *value )
       *((uint8*)value) = testConf;
       break;
 
+	case APO_TEST_DATA_ATTR:
+      VOID osal_memcpy (value, apo_testData, APO_TEST_DATA_LEN );
+      break;
+
     default:
       ret = INVALIDPARAMETER;
       break;
@@ -412,6 +455,11 @@ static uint8 test_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
     case TEST_CONF_UUID:
       *pLen = 1;
       pValue[0] = *pAttr->pValue;
+      break;
+
+    case APO_TEST_DATA_UUID:
+      *pLen = APO_TEST_DATA_LEN;
+      VOID osal_memcpy( pValue, flashData, APO_TEST_DATA_LEN );
       break;
 
     default:
@@ -484,6 +532,36 @@ static bStatus_t test_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
         {
           notifyApp = TEST_CONF_ATTR;
         }
+      }
+      break;
+
+    case APO_TEST_DATA_UUID:
+      // Validate the value
+      // Make sure it's not a blob oper
+      if ( offset == 0 )
+      {
+        if ( len != APO_TEST_DATA_LEN)
+        {
+          status = ATT_ERR_INVALID_VALUE_SIZE;
+        }
+      }
+      else
+      {
+        status = ATT_ERR_ATTR_NOT_LONG;
+      }
+
+      // Write the value
+      if ( status == SUCCESS )
+      {
+        uint8 *pCurValue = (uint8 *)pAttr->pValue;
+		//uint32 flashAddr = *(uint32*)pValue/4; // read flash in unit of byte
+        //*pCurValue = pValue[0];
+        osal_memcpy(pCurValue, pValue, APO_TEST_DATA_LEN);
+
+        //if( pAttr->pValue == &apo_testData )
+        //{
+          notifyApp = APO_TEST_DATA_ATTR;
+        //}
       }
       break;
 
