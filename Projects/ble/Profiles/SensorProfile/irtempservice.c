@@ -357,6 +357,14 @@ bStatus_t IRTemp_RegisterAppCBs( sensorCBs_t *appCallbacks )
   return ( bleAlreadyInRequestedMode );
 }
 
+bStatus_t IRTemp_isNotificationEn(void)
+{
+	if (((sensorDataConfig[0].value)&0x01) == 0x01)
+		return 1; // Notification has been enabled
+	else
+		return 0;
+}
+
 /*********************************************************************
  * @fn      IRTemp_SetParameter
  *
@@ -507,7 +515,7 @@ static uint8 sensor_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
     // gattserverapp handles those reads
     case SENSOR_DATA_UUID:
       // read history data
-      if ((sensorCfg & SENSOR_CFG_READ_HISDATA) == SENSOR_CFG_READ_HISDATA)
+      if (1)//((sensorCfg & SENSOR_CFG_READ_HISDATA) == SENSOR_CFG_READ_HISDATA)
       {
         IRTempReadRecordFromFlash(pValue, pLen);
       }

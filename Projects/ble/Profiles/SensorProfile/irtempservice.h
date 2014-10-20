@@ -127,6 +127,8 @@ extern bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value );
 extern bStatus_t IRTemp_GetParameter( uint8 param, void *value );
 
 extern uint8 IRTempGetLinkStatus(void);
+extern bStatus_t IRTemp_isNotificationEn(void);
+
 
 /*********************************************************************
 *********************************************************************/
