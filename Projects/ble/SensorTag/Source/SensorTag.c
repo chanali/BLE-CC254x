@@ -185,7 +185,7 @@
 #define REC_INFO_PAGE_BASE   79
 
 #define IRTEMP_FLASH_PAGE_BASE  80  //check *.xcl(Linker Configuration file) first
-#define IRTEMP_FLASH_PAGE_CNT    4
+#define IRTEMP_FLASH_PAGE_CNT    8
 
 /*********************************************************************
  * TYPEDEFS
@@ -285,9 +285,9 @@ extern uint32 *timeData;
 
 //#pragma data_alignment=4
 //#pragma pack (4)
-static uint8 irTempHistroyBuffer[IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN_WITH_TIME];
+static uint32 irTempRingBuffer[IRTEMP_RINGBUFFER_SIZE/sizeof(uint32)];
 //#pragma
-static irTempData_t* irTempHistroyRecord;
+static irTempData_t* irTempRingRecord;
 static uint16 irTempBufferHead;
 static uint16 irTempBufferTail;
 
@@ -574,10 +574,10 @@ static void SensorTag_flashInit(void)
   //uint32 flash_r_data;
 
   HalFlashRead(REC_INFO_PAGE_BASE, 0, (uint8 *)flashRecInfo, sizeof(flashRecInfo));
-  if (flashRecInfo[0].flashInUse != 0xC3)
+  if (1)//(flashRecInfo[0].flashInUse != 0xC3)  // flash can't be writen if head/tail not saved and flash not erased.
   {
     // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
-    irTempHistroyRecord = (irTempData_t*)irTempHistroyBuffer;
+    irTempRingRecord = (irTempData_t*)irTempRingBuffer;
     irTempBufferHead = irTempBufferTail = 0;
     for (pg=IRTEMP_FLASH_PAGE_BASE; pg<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; pg++)
     {
@@ -1240,6 +1240,23 @@ static void readBarCalibration( void )
   }
 }
 
+bStatus_t IRTempReadRecordFromRam(uint8 *data, uint8 *pLen)
+{
+  if (irTempBufferHead != irTempBufferTail)
+  {
+    *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
+  	osal_memcpy(data, &irTempRingRecord[irTempBufferTail], IRTEMPERATURE_DATA_LEN_WITH_TIME);
+	irTempBufferTail = (irTempBufferTail == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempBufferTail+1);
+  }	
+  else
+  {
+    *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
+	osal_memset( data, 0, IRTEMPERATURE_DATA_LEN_WITH_TIME );
+  }
+
+  return SUCCESS;
+}
+
 bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *pLen)
 {
   int i;
@@ -1250,8 +1267,8 @@ bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *pLen)
      HalFlashRead(irTempFlashTail/HAL_FLASH_PAGE_SIZE, irTempFlashTail%HAL_FLASH_PAGE_SIZE, data, IRTEMPERATURE_DATA_LEN_WITH_TIME);
      irTempFlashTail += IRTEMPERATURE_DATA_LEN_WITH_TIME;
   }else{
-    *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
-    VOID osal_memset( data, 0, IRTEMPERATURE_DATA_LEN_WITH_TIME );   // indicate all data was fetched
+    IRTempReadRecordFromRam(data, pLen);
+    // if all flash data is read out and no enough flash to write, erase the flash.
     if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN_WITH_TIME)
     {
       for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
@@ -1310,16 +1327,21 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
   
   if (ringBufferIsFull(irTempBufferHead, irTempBufferTail, IRTEMP_RINGBUFFER_DEPTH))
   {
+    // the current entry is available
+  	osal_memcpy(&irTempRingRecord[irTempBufferHead], data, len);
     if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_SIZE)
     {
-      IRTempSaveDataToFlash(irTempHistroyBuffer, IRTEMP_RINGBUFFER_SIZE);
+      IRTempSaveDataToFlash((uint8 *)irTempRingBuffer, IRTEMP_RINGBUFFER_SIZE);
       irTempFlashHead += IRTEMP_RINGBUFFER_SIZE;
     }  
     irTempBufferHead = irTempBufferTail = 0;  // reuse all ring buffer
   }
-  osal_memcpy(&irTempHistroyRecord[irTempBufferHead], data, len);
+  else
+  {
+  osal_memcpy(&irTempRingRecord[irTempBufferHead], data, len);
+  // move to available entry
   irTempBufferHead = (irTempBufferHead == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempBufferHead+1);
-
+  }
   return SUCCESS;
 }
 	
@@ -1347,12 +1369,12 @@ static void readIrTempData( void )
     tTimeData[i++] = DATA_TYPE_SAMPLE_DATA;	//type = data
     tTimeData[i++] = IRTEMPERATURE_DATA_LEN;	//len
     osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN );
-    i += IRTEMPERATURE_DATA_LEN;	
+    //i += IRTEMPERATURE_DATA_LEN;	
 	// write data "01 00" to "Client Characteristic Configuration" to enable notification of GATTServApp_ProcessCharCfg() 
     if ((IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) && IRTemp_isNotificationEn())
       IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN_WITH_TIME, tTimeData);
     else
-      IRTempSaveDataToRam(tTimeData, i+1);
+      IRTempSaveDataToRam(tTimeData, IRTEMPERATURE_DATA_LEN_WITH_TIME);
   }
 }
 

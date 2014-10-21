@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=78301535
+Checksum=1434642403
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -20,11 +20,6 @@ Placement=_ 418 351 863 633
 Fmt0={W}0:idx	3	0
 Fmt1={W}0:irTempFlashHead	4	0
 Fmt2={W}0:irTempFlashTail	4	0
-[Breakpoints]
-Count=0
-[ChipconEmu]
-Stop timers on halt=0
-Leave target running=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -32,6 +27,11 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
+[Breakpoints]
+Count=0
+[ChipconEmu]
+Stop timers on halt=0
+Leave target running=1
 [Aliases]
 Count=0
 SuppressDialog=0
