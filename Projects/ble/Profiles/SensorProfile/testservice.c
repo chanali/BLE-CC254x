@@ -141,7 +141,7 @@ static uint8 apo_testData[APO_TEST_DATA_LEN] = {0,0,0,0};
 static uint8 apo_testDataUserDesp[] = "ApeirOne self-defined test";
 // }
 
-extern uint8 flashData[APO_TEST_DATA_LEN];
+extern uint8 test_flashData[APO_TEST_DATA_LEN];
 /*********************************************************************
  * Profile Attributes - Table
  */
@@ -459,7 +459,7 @@ static uint8 test_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
 
     case APO_TEST_DATA_UUID:
       *pLen = APO_TEST_DATA_LEN;
-      VOID osal_memcpy( pValue, flashData, APO_TEST_DATA_LEN );
+      VOID osal_memcpy( pValue, test_flashData, APO_TEST_DATA_LEN );
       break;
 
     default:

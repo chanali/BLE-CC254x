@@ -64,7 +64,7 @@
 #define SENSOR_PERIOD_UUID      IRTEMPERATURE_PERI_UUID
 
 #define SENSOR_SERVICE          IRTEMPERATURE_SERVICE
-#define SENSOR_DATA_LEN         IRTEMPERATURE_DATA_LEN
+#define SENSOR_DATA_LEN         IRTEMPERATURE_DATA_LEN_WITH_TIME
 
 #define SENSOR_DATA_DESCR       "Temp. Data"
 #define SENSOR_CONFIG_DESCR     "Temp. Conf."
@@ -357,7 +357,7 @@ bStatus_t IRTemp_RegisterAppCBs( sensorCBs_t *appCallbacks )
   return ( bleAlreadyInRequestedMode );
 }
 
-bStatus_t IRTemp_isNotificationEn(void)
+uint8 IRTemp_isNotificationEn(void)
 {
 	if (((sensorDataConfig[0].value)&0x01) == 0x01)
 		return 1; // Notification has been enabled

@@ -179,9 +179,11 @@
 #define DATA_TYPE_SAMPLE_DATA		3
 
 #define IRTEMP_RINGBUFFER_DEPTH  16 
-#define IRTEMP_RINGBUFFER_SIZE ((IRTEMP_RINGBUFFER_DEPTH)*(IRTEMPERATURE_DATA_LEN))
+#define IRTEMP_RINGBUFFER_SIZE ((IRTEMP_RINGBUFFER_DEPTH)*(IRTEMPERATURE_DATA_LEN_WITH_TIME))
 
 //2k per page
+#define REC_INFO_PAGE_BASE   79
+
 #define IRTEMP_FLASH_PAGE_BASE  80  //check *.xcl(Linker Configuration file) first
 #define IRTEMP_FLASH_PAGE_CNT    4
 
@@ -283,7 +285,7 @@ extern uint32 *timeData;
 
 //#pragma data_alignment=4
 //#pragma pack (4)
-static uint8 irTempHistroyBuffer[IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN];
+static uint8 irTempHistroyBuffer[IRTEMP_RINGBUFFER_DEPTH * IRTEMPERATURE_DATA_LEN_WITH_TIME];
 //#pragma
 static irTempData_t* irTempHistroyRecord;
 static uint16 irTempBufferHead;
@@ -301,7 +303,9 @@ static uint16 selfTestResult = 0;
 static bool   testMode = FALSE;
 
 static uint32 flashAddr;
-uint8 flashData[APO_TEST_DATA_LEN];
+uint8 test_flashData[APO_TEST_DATA_LEN];
+
+flashRecInfo_t flashRecInfo[6];
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -338,6 +342,8 @@ static void resetSensorSetup( void );
 static void sensorTag_HandleKeys( uint8 shift, uint8 keys );
 static void resetCharacteristicValue( uint16 servID, uint8 paramID, uint8 value, uint8 paramLen );
 static void resetCharacteristicValues( void );
+
+static void SensorTag_flashInit(void);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -431,9 +437,6 @@ static gapRolesParamUpdateCB_t paramUpdateCB =
 void SensorTag_Init( uint8 task_id )
 {
   sensorTag_TaskID = task_id;
-  int pg;
-  //uint32 flash_w_data = 0x5a5a5a5a;
-  //uint32 flash_r_data;
 
   // Setup the GAP
   VOID GAP_SetParamValue( TGAP_CONN_PAUSE_PERIPHERAL, DEFAULT_CONN_PAUSE_PERIPHERAL );
@@ -550,27 +553,62 @@ void SensorTag_Init( uint8 task_id )
   VOID CcService_RegisterAppCBs( &sensorTag_ccCBs );
   VOID GAPRole_RegisterAppCBs( &paramUpdateCB );
 
-  // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
-  irTempHistroyRecord = (irTempData_t*)irTempHistroyBuffer;
-  irTempBufferHead = irTempBufferTail = 0;
-  for (pg=IRTEMP_FLASH_PAGE_BASE; pg<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; pg++)
+  SensorTag_flashInit();
+  
+  // Enable clock divide on halt
+  // This reduces active current while radio is active and CC254x MCU
+  // is halted
+  HCI_EXT_ClkDivOnHaltCmd( HCI_EXT_ENABLE_CLK_DIVIDE_ON_HALT );
+
+  // Setup a delayed profile startup
+  osal_set_event( sensorTag_TaskID, ST_START_DEVICE_EVT );
+}
+
+/*********************************************************************
+*
+*/
+static void SensorTag_flashInit(void)
+{
+  int pg;
+  //uint32 flash_w_data = 0x5a5a5a5a;
+  //uint32 flash_r_data;
+
+  HalFlashRead(REC_INFO_PAGE_BASE, 0, (uint8 *)flashRecInfo, sizeof(flashRecInfo));
+  if (flashRecInfo[0].flashInUse != 0xC3)
   {
-    uint16 offset;
-    uint8 tmp;
-    bool n_erased = 0;
-	
-    HalFlashErase(pg);
-    for (offset = 0; offset < HAL_FLASH_PAGE_SIZE; offset ++)
+    // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
+    irTempHistroyRecord = (irTempData_t*)irTempHistroyBuffer;
+    irTempBufferHead = irTempBufferTail = 0;
+    for (pg=IRTEMP_FLASH_PAGE_BASE; pg<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; pg++)
     {
-      HalFlashRead(pg, offset, &tmp, 1);
-      if (tmp != 0xFF)
+      uint16 offset;
+      uint8 tmp;
+      bool n_erased = 0;
+  	
+      HalFlashErase(pg);
+      for (offset = 0; offset < HAL_FLASH_PAGE_SIZE; offset ++)
       {
-        n_erased = 1;
-        break;
+        HalFlashRead(pg, offset, &tmp, 1);
+        if (tmp != 0xFF)
+        {
+          n_erased = 1;
+          break;
+        }
       }
+      if (n_erased) while(1);
     }
-    if (n_erased) while(1);
-  }	
+    flashRecInfo[0].flashInUse = 0xC3;
+    flashRecInfo[0].head = irTempBufferHead;
+    flashRecInfo[0].tail = irTempBufferTail;
+    HalFlashErase(REC_INFO_PAGE_BASE);
+    HalFlashWrite(((uint32)REC_INFO_PAGE_BASE*HAL_FLASH_PAGE_SIZE)/4, (uint8 *)flashRecInfo, 
+      (sizeof(flashRecInfo)%4)?(sizeof(flashRecInfo)/4+1):(sizeof(flashRecInfo)/4));
+  }
+  else
+  {
+    irTempBufferHead = flashRecInfo[0].head;
+    irTempBufferTail = flashRecInfo[0].tail;
+  }
   // successful to test it
   // write data in unit of byte in ram and in unit of word(4 bytes) in flash
   //HalFlashWrite((uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE/4 /* in flash */, 
@@ -581,14 +619,8 @@ void SensorTag_Init( uint8 task_id )
   //irTempFlashValid = TRUE;
   irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
   irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
-  
-  // Enable clock divide on halt
-  // This reduces active current while radio is active and CC254x MCU
-  // is halted
-  HCI_EXT_ClkDivOnHaltCmd( HCI_EXT_ENABLE_CLK_DIVIDE_ON_HALT );
 
-  // Setup a delayed profile startup
-  osal_set_event( sensorTag_TaskID, ST_START_DEVICE_EVT );
+  return;
 }
 
 /*********************************************************************
@@ -667,7 +699,7 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
     {
       //Turn off Temperatur sensor
       VOID HalIRTempTurnOff();
-      VOID resetCharacteristicValue(IRTEMPERATURE_SERV_UUID,SENSOR_DATA,0,IRTEMPERATURE_DATA_LEN);
+      VOID resetCharacteristicValue(IRTEMPERATURE_SERV_UUID,SENSOR_DATA,0,IRTEMPERATURE_DATA_LEN_WITH_TIME);
       VOID resetCharacteristicValue(IRTEMPERATURE_SERV_UUID,SENSOR_CONF,ST_CFG_SENSOR_DISABLE,sizeof ( uint8 ));
     }
 
@@ -1212,15 +1244,15 @@ bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *pLen)
 {
   int i;
   
-  if ((irTempFlashHead - irTempFlashTail) >= IRTEMPERATURE_DATA_LEN)
+  if ((irTempFlashHead - irTempFlashTail) >= IRTEMPERATURE_DATA_LEN_WITH_TIME)
   {
-     *pLen = IRTEMPERATURE_DATA_LEN;
-     HalFlashRead(irTempFlashTail/HAL_FLASH_PAGE_SIZE, irTempFlashTail%HAL_FLASH_PAGE_SIZE, data, IRTEMPERATURE_DATA_LEN);
-     irTempFlashTail += IRTEMPERATURE_DATA_LEN;
+     *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
+     HalFlashRead(irTempFlashTail/HAL_FLASH_PAGE_SIZE, irTempFlashTail%HAL_FLASH_PAGE_SIZE, data, IRTEMPERATURE_DATA_LEN_WITH_TIME);
+     irTempFlashTail += IRTEMPERATURE_DATA_LEN_WITH_TIME;
   }else{
-    *pLen = IRTEMPERATURE_DATA_LEN;
-    VOID osal_memset( data, 0, IRTEMPERATURE_DATA_LEN );   // indicate all data was fetched
-    if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN)
+    *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
+    VOID osal_memset( data, 0, IRTEMPERATURE_DATA_LEN_WITH_TIME );   // indicate all data was fetched
+    if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN_WITH_TIME)
     {
       for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
         HalFlashErase(i);
@@ -1258,13 +1290,25 @@ static bStatus_t IRTempSaveDataToFlash( uint8 *data, uint16 len )
   return SUCCESS;
 }
 
-static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
+static bStatus_t ringBufferIsFull(uint16 head, uint16 tail, uint16 depth)
 {
   uint8 next;
+
+  if (head == depth-1)
+    next =0;
+  else
+    next = head+1;
+  if (next == tail)
+    return 1; // full
+  else
+    return 0; // not full
+}
+
+static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
+{
   //static bStatus_t flash_stat = FALSE;  // for debugging, avoid writing flash continually.
   
-  next =  (irTempBufferHead == IRTEMP_RINGBUFFER_DEPTH-1)?0:(irTempBufferHead + 1);
-  if (next == irTempBufferTail)	 // ring buffer is full
+  if (ringBufferIsFull(irTempBufferHead, irTempBufferTail, IRTEMP_RINGBUFFER_DEPTH))
   {
     if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_SIZE)
     {
@@ -1290,7 +1334,7 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
  */
 static void readIrTempData( void )
 {
-  uint8 tTimeData[IRTEMPERATURE_DATA_LEN];
+  uint8 tTimeData[IRTEMPERATURE_DATA_LEN_WITH_TIME];
   uint8 tData[4];
   int i = 0;
 
@@ -1301,12 +1345,12 @@ static void readIrTempData( void )
     osal_memcpy( &tTimeData[i], timeData, TIME_DATA_LEN );
     i += TIME_DATA_LEN;
     tTimeData[i++] = DATA_TYPE_SAMPLE_DATA;	//type = data
-    tTimeData[i++] = IRTEMPERATURE_DATA_LEN_NO_TIME;	//len
-    osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN_NO_TIME );
-    i += IRTEMPERATURE_DATA_LEN_NO_TIME;	
+    tTimeData[i++] = IRTEMPERATURE_DATA_LEN;	//len
+    osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN );
+    i += IRTEMPERATURE_DATA_LEN;	
 	// write data "01 00" to "Client Characteristic Configuration" to enable notification of GATTServApp_ProcessCharCfg() 
     if ((IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) && IRTemp_isNotificationEn())
-      IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN, tTimeData);
+      IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN_WITH_TIME, tTimeData);
     else
       IRTempSaveDataToRam(tTimeData, i+1);
   }
@@ -1709,7 +1753,7 @@ static void testChangeCB( uint8 paramID )
     uint8 newValue[4];
 	Test_GetParameter( APO_TEST_DATA_ATTR, newValue );
 	flashAddr = *(uint32*)newValue;
-	HalFlashRead(flashAddr/HAL_FLASH_PAGE_SIZE, flashAddr%HAL_FLASH_PAGE_SIZE, flashData, APO_TEST_DATA_LEN);
+	HalFlashRead(flashAddr/HAL_FLASH_PAGE_SIZE, flashAddr%HAL_FLASH_PAGE_SIZE, test_flashData, APO_TEST_DATA_LEN);
   }
 }
 
@@ -1858,7 +1902,7 @@ static void resetCharacteristicValue(uint16 servUuid, uint8 paramID, uint8 value
  */
 static void resetCharacteristicValues( void )
 {
-  resetCharacteristicValue( IRTEMPERATURE_SERV_UUID, SENSOR_DATA, 0, IRTEMPERATURE_DATA_LEN);
+  resetCharacteristicValue( IRTEMPERATURE_SERV_UUID, SENSOR_DATA, 0, IRTEMPERATURE_DATA_LEN_WITH_TIME);
   resetCharacteristicValue( IRTEMPERATURE_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));
   resetCharacteristicValue( IRTEMPERATURE_SERV_UUID, SENSOR_PERI, TEMP_DEFAULT_PERIOD / SENSOR_PERIOD_RESOLUTION, sizeof ( uint8 ));
 

@@ -56,20 +56,20 @@ extern "C"
 // Test Service Parameters
 #define TEST_DATA_ATTR                  0      // RW uint8 - Profile Attribute value
 #define TEST_CONF_ATTR                  1      // RW uint8 - Profile Attribute value
-#define APO_TEST_DATA_ATTR				2
+#define APO_TEST_DATA_ATTR              2
 
 // Service UUID
 #define TEST_SERV_UUID                  0xAA60 // F000AA60-0451-4000-B000-00000000-0000
 #define TEST_DATA_UUID                  0xAA61
 #define TEST_CONF_UUID                  0xAA62
-#define APO_TEST_DATA_UUID                  0xAA63
+#define APO_TEST_DATA_UUID              0xAA63
 
 // Test Profile Services bit fields
 #define TEST_SERVICE                    0x00000001
 
 // Test Data Length
 #define TEST_DATA_LEN                   2
-#define APO_TEST_DATA_LEN				4
+#define APO_TEST_DATA_LEN               4
 
 /*********************************************************************
  * TYPEDEFS
