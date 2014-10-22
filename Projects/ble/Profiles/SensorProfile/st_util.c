@@ -82,6 +82,20 @@ bStatus_t utilExtractUuid16(gattAttribute_t *pAttr, uint16 *pUuid)
   return status;
 }
 
+uint8 ringBufferIsFull(uint16 head, uint16 tail, uint16 depth)
+{
+  uint8 next;
+
+  if (head == depth-1)
+    next =0;
+  else
+    next = head+1;
+  if (next == tail)
+    return 1; // full
+  else
+    return 0; // not full
+}
+
 /*********************************************************************
 *********************************************************************/
 

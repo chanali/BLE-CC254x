@@ -65,10 +65,16 @@ extern "C"
 
 // Length of sensor data in bytes
 #define ACCELEROMETER_DATA_LEN          3
+/* TLV(timestamp) + TLV(data) = 1(9)+1(4)+4+1(3)+1(4)+3 = 11 */
+#define ACCELEROMETER_DATA_LEN_WITH_TIME          12  // aligned to word
 
 /*********************************************************************
  * TYPEDEFS
  */
+typedef struct  {
+	uint8 timestamp[6];
+	uint8 data[6];  // 3 of 4 bytes of data is valid
+}accelData_t;
 
 /*********************************************************************
  * MACROS
@@ -120,6 +126,7 @@ extern bStatus_t Accel_SetParameter( uint8 param, uint8 len, void *value );
  */
 extern bStatus_t Accel_GetParameter( uint8 param, void *value );
 
+extern void Accel_flashInit(flashRecInfo_t *flashInfo);
 
 /*********************************************************************
 *********************************************************************/

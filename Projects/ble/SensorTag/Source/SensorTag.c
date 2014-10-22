@@ -42,7 +42,6 @@
  */
 
 #include "bcomdef.h"
-#include "linkdb.h"
 #include "OSAL.h"
 #include "OSAL_PwrMgr.h"
 
@@ -107,9 +106,7 @@
 
 // How often to perform sensor reads (milliseconds)
 #define TEMP_DEFAULT_PERIOD                   1000
-#if (SENSOR_HUMID == TRUE)
 #define HUM_DEFAULT_PERIOD                    1000
-#endif
 #define BAR_DEFAULT_PERIOD                    1000
 #define MAG_DEFAULT_PERIOD                    2000
 #define ACC_DEFAULT_PERIOD                    1000
@@ -119,9 +116,7 @@
 #define TEMP_MEAS_DELAY                       275   // Conversion time 250 ms
 #define BAR_FSM_PERIOD                        80
 #define ACC_FSM_PERIOD                        20
-#if (SENSOR_HUMID == TRUE)
 #define HUM_FSM_PERIOD                        20
-#endif
 #define GYRO_STARTUP_TIME                     60    // Start-up time max. 50 ms
 
 // What is the advertising interval when device is discoverable (units of 625us, 160=100ms)
@@ -176,16 +171,7 @@
 #define ST_SYS_RESET_DELAY                    3000
 
 #define DATA_TYPE_TIMESTAMP			9
-#define DATA_TYPE_SAMPLE_DATA		3
-
-#define IRTEMP_RINGBUFFER_DEPTH  16 
-#define IRTEMP_RINGBUFFER_SIZE ((IRTEMP_RINGBUFFER_DEPTH)*(IRTEMPERATURE_DATA_LEN_WITH_TIME))
-
-//2k per page
-#define REC_INFO_PAGE_BASE   79
-
-#define IRTEMP_FLASH_PAGE_BASE  80  //check *.xcl(Linker Configuration file) first
-#define IRTEMP_FLASH_PAGE_CNT    8
+#define DATA_TYPE_SENSOR_DATA		3
 
 /*********************************************************************
  * TYPEDEFS
@@ -260,49 +246,29 @@ static bool   irTempEnabled = FALSE;
 static bool   magEnabled = FALSE;
 static uint8  accConfig = ST_CFG_SENSOR_DISABLE;
 static bool   barEnabled = FALSE;
-#if (SENSOR_HUMID == TRUE)
 static bool   humiEnabled = FALSE;
-#endif
 static bool   gyroEnabled = FALSE;
 
 static bool   barBusy = FALSE;
-#if (SENSOR_HUMID == TRUE)
 static uint8  humiState = 0;
-#endif
 
 static bool   sysResetRequest = FALSE;
 
 static uint16 sensorMagPeriod = MAG_DEFAULT_PERIOD;
 static uint16 sensorAccPeriod = ACC_DEFAULT_PERIOD;
 static uint16 sensorTmpPeriod = TEMP_DEFAULT_PERIOD;
-#if (SENSOR_HUMID == TRUE)
 static uint16 sensorHumPeriod = HUM_DEFAULT_PERIOD;
-#endif
 static uint16 sensorBarPeriod = BAR_DEFAULT_PERIOD;
 static uint16 sensorGyrPeriod = GYRO_DEFAULT_PERIOD;
-
-extern uint32 *timeData;
-
-//#pragma data_alignment=4
-//#pragma pack (4)
-static uint32 irTempRingBuffer[IRTEMP_RINGBUFFER_SIZE/sizeof(uint32)];
-//#pragma
-static irTempData_t* irTempRingRecord;
-static uint16 irTempBufferHead;
-static uint16 irTempBufferTail;
-
-//static bool irTempFlashValid = FALSE;
-static uint32 irTempFlashBegin;
-static uint32 irTempFlashHead;
-static uint32 irTempFlashTail;
-static uint32 irTempFlashEnd;
 
 static uint8  sensorGyroAxes = 0;
 static bool   sensorGyroUpdateAxes = FALSE;
 static uint16 selfTestResult = 0;
 static bool   testMode = FALSE;
 
-static uint32 flashAddr;
+uint32 timeData;
+  
+static uint32 test_flashAddr;
 uint8 test_flashData[APO_TEST_DATA_LEN];
 
 flashRecInfo_t flashRecInfo[6];
@@ -314,23 +280,17 @@ static void sensorTag_ProcessOSALMsg( osal_event_hdr_t *pMsg );
 static void peripheralStateNotificationCB( gaprole_States_t newState );
 
 static void readIrTempData( void );
-#if (SENSOR_HUMID == TRUE)
 static void readHumData( void );
-#endif
 static void readAccData( void );
 static void readMagData( void );
 static void readBarData( void );
 static void readBarCalibration( void );
 static void readGyroData( void );
-//static void readTimeData( void );
-
 
 static void barometerChangeCB( uint8 paramID );
 static void irTempChangeCB( uint8 paramID );
 static void accelChangeCB( uint8 paramID );
-#if (SENSOR_HUMID == TRUE)
 static void humidityChangeCB( uint8 paramID);
-#endif
 static void magnetometerChangeCB( uint8 paramID );
 static void gyroChangeCB( uint8 paramID );
 static void timeChangeCB( uint8 paramID );
@@ -343,7 +303,7 @@ static void sensorTag_HandleKeys( uint8 shift, uint8 keys );
 static void resetCharacteristicValue( uint16 servID, uint8 paramID, uint8 value, uint8 paramLen );
 static void resetCharacteristicValues( void );
 
-static void SensorTag_flashInit(void);
+static bStatus_t SensorTag_rdFlashInfo(void);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -379,12 +339,10 @@ static sensorCBs_t sensorTag_AccelCBs =
   accelChangeCB,            // Characteristic value change callback
 };
 
-#if (SENSOR_HUMID == TRUE)
 static sensorCBs_t sensorTag_HumidCBs =
 {
   humidityChangeCB,         // Characteristic value change callback
 };
-#endif
 
 static sensorCBs_t sensorTag_MagnetometerCBs =
 {
@@ -505,13 +463,11 @@ void SensorTag_Init( uint8 task_id )
   DevInfo_AddService();                           // Device Information Service
   IRTemp_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
   Accel_AddService (GATT_ALL_SERVICES );          // Accelerometer Service
-#if (SENSOR_HUMID == TRUE)
   Humidity_AddService (GATT_ALL_SERVICES );       // Humidity Service
-#endif  
   Magnetometer_AddService( GATT_ALL_SERVICES );   // Magnetometer Service
   Barometer_AddService( GATT_ALL_SERVICES );      // Barometer Service
   Gyro_AddService( GATT_ALL_SERVICES );           // Gyro Service
-  Time_AddService (GATT_ALL_SERVICES );         // IR Temperature Service
+  Time_AddService (GATT_ALL_SERVICES );           // Timestamp Service
   SK_AddService( GATT_ALL_SERVICES );             // Simple Keys Profile
   Test_AddService( GATT_ALL_SERVICES );           // Test Profile
   CcService_AddService( GATT_ALL_SERVICES );      // Connection Control Service
@@ -531,9 +487,7 @@ void SensorTag_Init( uint8 task_id )
 
   // Initialise sensor drivers
   HALIRTempInit();
-#if (SENSOR_HUMID == TRUE)  
   HalHumiInit();
-#endif
   HalMagInit();
   HalAccInit();
   HalBarInit();
@@ -543,9 +497,7 @@ void SensorTag_Init( uint8 task_id )
   VOID IRTemp_RegisterAppCBs( &sensorTag_IrTempCBs );
   VOID Magnetometer_RegisterAppCBs( &sensorTag_MagnetometerCBs );
   VOID Accel_RegisterAppCBs( &sensorTag_AccelCBs );
-#if (SENSOR_HUMID == TRUE)
   VOID Humidity_RegisterAppCBs( &sensorTag_HumidCBs );
-#endif
   VOID Barometer_RegisterAppCBs( &sensorTag_BarometerCBs );
   VOID Gyro_RegisterAppCBs( &sensorTag_GyroCBs );
   VOID Time_RegisterAppCBs( &sensorTag_TimeCBs );
@@ -553,7 +505,9 @@ void SensorTag_Init( uint8 task_id )
   VOID CcService_RegisterAppCBs( &sensorTag_ccCBs );
   VOID GAPRole_RegisterAppCBs( &paramUpdateCB );
 
-  SensorTag_flashInit();
+  SensorTag_rdFlashInfo();
+  IRTemp_flashInit(flashRecInfo);
+  Accel_flashInit(flashRecInfo);
   
   // Enable clock divide on halt
   // This reduces active current while radio is active and CC254x MCU
@@ -564,64 +518,25 @@ void SensorTag_Init( uint8 task_id )
   osal_set_event( sensorTag_TaskID, ST_START_DEVICE_EVT );
 }
 
-/*********************************************************************
-*
-*/
-static void SensorTag_flashInit(void)
+static bStatus_t SensorTag_rdFlashInfo(void)
 {
-  int pg;
-  //uint32 flash_w_data = 0x5a5a5a5a;
-  //uint32 flash_r_data;
-
   HalFlashRead(REC_INFO_PAGE_BASE, 0, (uint8 *)flashRecInfo, sizeof(flashRecInfo));
-  if (1)//(flashRecInfo[0].flashInUse != 0xC3)  // flash can't be writen if head/tail not saved and flash not erased.
-  {
-    // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
-    irTempRingRecord = (irTempData_t*)irTempRingBuffer;
-    irTempBufferHead = irTempBufferTail = 0;
-    for (pg=IRTEMP_FLASH_PAGE_BASE; pg<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; pg++)
-    {
-      uint16 offset;
-      uint8 tmp;
-      bool n_erased = 0;
-  	
-      HalFlashErase(pg);
-      for (offset = 0; offset < HAL_FLASH_PAGE_SIZE; offset ++)
-      {
-        HalFlashRead(pg, offset, &tmp, 1);
-        if (tmp != 0xFF)
-        {
-          n_erased = 1;
-          break;
-        }
-      }
-      if (n_erased) while(1);
-    }
-    flashRecInfo[0].flashInUse = 0xC3;
-    flashRecInfo[0].head = irTempBufferHead;
-    flashRecInfo[0].tail = irTempBufferTail;
-    HalFlashErase(REC_INFO_PAGE_BASE);
-    HalFlashWrite(((uint32)REC_INFO_PAGE_BASE*HAL_FLASH_PAGE_SIZE)/4, (uint8 *)flashRecInfo, 
-      (sizeof(flashRecInfo)%4)?(sizeof(flashRecInfo)/4+1):(sizeof(flashRecInfo)/4));
-  }
-  else
-  {
-    irTempBufferHead = flashRecInfo[0].head;
-    irTempBufferTail = flashRecInfo[0].tail;
-  }
-  // successful to test it
-  // write data in unit of byte in ram and in unit of word(4 bytes) in flash
-  //HalFlashWrite((uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE/4 /* in flash */, 
-  //	(uint8 *)&flash_w_data /* in ram */,1 /* in flash */);
-  // read data in unit of byte even for flash.
-  //HalFlashRead(IRTEMP_FLASH_PAGE_BASE, 0, (uint8*)&flash_r_data, 4);
 
-  //irTempFlashValid = TRUE;
-  irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
-  irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;	//pointer in unit of byte
-
-  return;
+  return SUCCESS;
 }
+
+bStatus_t SensorTag_wrFlashInfo(flashRecInfo_t *flashInfo)
+{
+    HalFlashErase(REC_INFO_PAGE_BASE);
+    HalFlashWrite(((uint32)REC_INFO_PAGE_BASE*HAL_FLASH_PAGE_SIZE)/HAL_FLASH_WORD_SIZE, 
+      (uint8 *)flashInfo, 
+      sizeof(flashInfo)%HAL_FLASH_WORD_SIZE?
+      (sizeof(flashInfo)/HAL_FLASH_WORD_SIZE+1):
+      sizeof(flashInfo)/HAL_FLASH_WORD_SIZE);
+    
+    return SUCCESS;
+}
+
 
 /*********************************************************************
  * @fn      SensorTag_ProcessEvent
@@ -718,14 +633,13 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
     }
     else
     {
-      VOID resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_DATA, 0, ACCELEROMETER_DATA_LEN );
+      VOID resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_DATA, 0, ACCELEROMETER_DATA_LEN_WITH_TIME );
       VOID resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));
     }
 
     return (events ^ ST_ACCELEROMETER_SENSOR_EVT);
   }
 
-#if (SENSOR_HUMID == TRUE)
   //////////////////////////
   //      Humidity        //
   //////////////////////////
@@ -754,7 +668,6 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
 
     return (events ^ ST_HUMIDITY_SENSOR_EVT);
   }
-#endif
 
   //////////////////////////
   //      Magnetometer    //
@@ -867,8 +780,9 @@ uint16 SensorTag_ProcessEvent( uint8 task_id, uint16 events )
   //////////////////////////
   if ( events & ST_TIME_SENSOR_EVT )
   {
-    *timeData += 1;
-    osal_start_timerEx( sensorTag_TaskID, ST_TIME_SENSOR_EVT, 100);	// timeout = 100ms
+    timeData += 1;
+    Time_SetParameter( SENSOR_DATA, TIME_DATA_LEN, &timeData ); // update GATT
+    osal_start_timerEx( sensorTag_TaskID, ST_TIME_SENSOR_EVT, TIME_MS_PER_TICK);
     return (events ^ ST_TIME_SENSOR_EVT);
   }
   
@@ -1065,13 +979,11 @@ static void resetSensorSetup (void)
     barEnabled = FALSE;
   }
 
-#if (SENSOR_HUMID == TRUE)
   if (humiEnabled)
   {
     HalHumiInit();
     humiEnabled = FALSE;
   }
-#endif
 
   // Reset internal states
   sensorGyroAxes = 0;
@@ -1153,10 +1065,19 @@ static void peripheralStateNotificationCB( gaprole_States_t newState )
 static void readAccData(void)
 {
   uint8 aData[ACCELEROMETER_DATA_LEN];
+  uint8 aTimeData[ACCELEROMETER_DATA_LEN_WITH_TIME];
+  int i = 0;
 
   if (HalAccRead(aData))
   {
-    Accel_SetParameter( SENSOR_DATA, ACCELEROMETER_DATA_LEN, aData);
+    aTimeData[i++] = DATA_TYPE_TIMESTAMP;	//type = timestamp
+    aTimeData[i++] = TIME_DATA_LEN;	//len
+    osal_memcpy( &aTimeData[i], &timeData, TIME_DATA_LEN );
+    i += TIME_DATA_LEN;
+    aTimeData[i++] = DATA_TYPE_SENSOR_DATA;	//type = sensor data
+    aTimeData[i++] = IRTEMPERATURE_DATA_LEN;	//len
+    osal_memcpy( &aTimeData[i], aData, IRTEMPERATURE_DATA_LEN );
+    Accel_SetParameter( SENSOR_DATA, ACCELEROMETER_DATA_LEN_WITH_TIME, aTimeData);
   }
 }
 
@@ -1179,7 +1100,6 @@ static void readMagData( void )
   }
 }
 
-#if (SENSOR_HUMID == TRUE)
 /*********************************************************************
  * @fn      readHumData
  *
@@ -1198,7 +1118,6 @@ static void readHumData(void)
     Humidity_SetParameter( SENSOR_DATA, HUMIDITY_DATA_LEN, hData);
   }
 }
-#endif
 
 /*********************************************************************
  * @fn      readBarData
@@ -1240,111 +1159,6 @@ static void readBarCalibration( void )
   }
 }
 
-bStatus_t IRTempReadRecordFromRam(uint8 *data, uint8 *pLen)
-{
-  if (irTempBufferHead != irTempBufferTail)
-  {
-    *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
-  	osal_memcpy(data, &irTempRingRecord[irTempBufferTail], IRTEMPERATURE_DATA_LEN_WITH_TIME);
-	irTempBufferTail = (irTempBufferTail == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempBufferTail+1);
-  }	
-  else
-  {
-    *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
-	osal_memset( data, 0, IRTEMPERATURE_DATA_LEN_WITH_TIME );
-  }
-
-  return SUCCESS;
-}
-
-bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *pLen)
-{
-  int i;
-  
-  if ((irTempFlashHead - irTempFlashTail) >= IRTEMPERATURE_DATA_LEN_WITH_TIME)
-  {
-     *pLen = IRTEMPERATURE_DATA_LEN_WITH_TIME;
-     HalFlashRead(irTempFlashTail/HAL_FLASH_PAGE_SIZE, irTempFlashTail%HAL_FLASH_PAGE_SIZE, data, IRTEMPERATURE_DATA_LEN_WITH_TIME);
-     irTempFlashTail += IRTEMPERATURE_DATA_LEN_WITH_TIME;
-  }else{
-    IRTempReadRecordFromRam(data, pLen);
-    // if all flash data is read out and no enough flash to write, erase the flash.
-    if ((irTempFlashEnd - irTempFlashHead) < IRTEMPERATURE_DATA_LEN_WITH_TIME)
-    {
-      for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
-        HalFlashErase(i);
-      irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
-      irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;
-     }
-  }
-
-  return SUCCESS;
-}
-
-/*
-refer to osal_snv.c and flash controller in <CC253x4x User's Guide>
-The flash memory is divided into 2048-byte or 1024-byte flash pages. A flash page is the smallest
-erasable unit in the memory, whereas a 32-bit word is the smallest writable unit that can be written to the
-flash.
-*/
-static bStatus_t IRTempSaveDataToFlash( uint8 *data, uint16 len )
-{
-  // for word(4 bytes) alignment and page is 512 words(2048 bytes)
-  //uint16 addr = (offset >> 2) + ((uint16)pg << 9);
-  //uint16 cnt = len >> 2;
-
-  uint32 addr = irTempFlashHead >> 2;
-  uint16 cnt = len >> 2;
-
-  //if ( !failF )
-  //{
-    HalFlashWrite((uint16)addr, data, cnt); // in unit of word
-  //  verifyWordM(pg, offset, pBuf, 1);
-  //}
-
-  //irTempFlashHead += len;
-  
-  return SUCCESS;
-}
-
-static bStatus_t ringBufferIsFull(uint16 head, uint16 tail, uint16 depth)
-{
-  uint8 next;
-
-  if (head == depth-1)
-    next =0;
-  else
-    next = head+1;
-  if (next == tail)
-    return 1; // full
-  else
-    return 0; // not full
-}
-
-static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
-{
-  //static bStatus_t flash_stat = FALSE;  // for debugging, avoid writing flash continually.
-  
-  if (ringBufferIsFull(irTempBufferHead, irTempBufferTail, IRTEMP_RINGBUFFER_DEPTH))
-  {
-    // the current entry is available
-  	osal_memcpy(&irTempRingRecord[irTempBufferHead], data, len);
-    if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_SIZE)
-    {
-      IRTempSaveDataToFlash((uint8 *)irTempRingBuffer, IRTEMP_RINGBUFFER_SIZE);
-      irTempFlashHead += IRTEMP_RINGBUFFER_SIZE;
-    }  
-    irTempBufferHead = irTempBufferTail = 0;  // reuse all ring buffer
-  }
-  else
-  {
-  osal_memcpy(&irTempRingRecord[irTempBufferHead], data, len);
-  // move to available entry
-  irTempBufferHead = (irTempBufferHead == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempBufferHead+1);
-  }
-  return SUCCESS;
-}
-	
 /*********************************************************************
  * @fn      readIrTempData
  *
@@ -1356,25 +1170,23 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
  */
 static void readIrTempData( void )
 {
+  uint8 tData[IRTEMPERATURE_DATA_LEN];
   uint8 tTimeData[IRTEMPERATURE_DATA_LEN_WITH_TIME];
-  uint8 tData[4];
   int i = 0;
 
+  /* SensorTag.c is responsible for collecting data from sensor and timer
+  xxx.c in sensor profile is responsible for data handling in view of client */
   if (HalIRTempRead(tData))
   {
     tTimeData[i++] = DATA_TYPE_TIMESTAMP;	//type = timestamp
     tTimeData[i++] = TIME_DATA_LEN;	//len
-    osal_memcpy( &tTimeData[i], timeData, TIME_DATA_LEN );
+    osal_memcpy( &tTimeData[i], &timeData, TIME_DATA_LEN );
     i += TIME_DATA_LEN;
-    tTimeData[i++] = DATA_TYPE_SAMPLE_DATA;	//type = data
+    tTimeData[i++] = DATA_TYPE_SENSOR_DATA;	//type = sensor data
     tTimeData[i++] = IRTEMPERATURE_DATA_LEN;	//len
     osal_memcpy( &tTimeData[i], tData, IRTEMPERATURE_DATA_LEN );
     //i += IRTEMPERATURE_DATA_LEN;	
-	// write data "01 00" to "Client Characteristic Configuration" to enable notification of GATTServApp_ProcessCharCfg() 
-    if ((IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) && IRTemp_isNotificationEn())
-      IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN_WITH_TIME, tTimeData);
-    else
-      IRTempSaveDataToRam(tTimeData, IRTEMPERATURE_DATA_LEN_WITH_TIME);
+    IRTemp_SetParameter( SENSOR_DATA, IRTEMPERATURE_DATA_LEN_WITH_TIME, tTimeData);
   }
 }
 
@@ -1597,7 +1409,6 @@ static void magnetometerChangeCB( uint8 paramID )
   }
 }
 
-#if (SENSOR_HUMID == TRUE)
 /*********************************************************************
  * @fn      humidityChangeCB
  *
@@ -1646,7 +1457,6 @@ static void humidityChangeCB( uint8 paramID )
     break;
   }
 }
-#endif
 
 /*********************************************************************
  * @fn      gyroChangeCB
@@ -1697,12 +1507,11 @@ static void gyroChangeCB( uint8 paramID )
 
 static void timeChangeCB( uint8 paramID )
 {
-  uint32 newValue;
+  //uint32 newValue;
   
   switch (paramID) {
   case SENSOR_DATA:
-    Time_GetParameter( SENSOR_DATA, &newValue );
-    *timeData = newValue;	
+    Time_GetParameter( SENSOR_DATA, &timeData );
     osal_set_event( sensorTag_TaskID, ST_TIME_SENSOR_EVT);
     break;
 
@@ -1774,8 +1583,8 @@ static void testChangeCB( uint8 paramID )
   {
     uint8 newValue[4];
 	Test_GetParameter( APO_TEST_DATA_ATTR, newValue );
-	flashAddr = *(uint32*)newValue;
-	HalFlashRead(flashAddr/HAL_FLASH_PAGE_SIZE, flashAddr%HAL_FLASH_PAGE_SIZE, test_flashData, APO_TEST_DATA_LEN);
+	test_flashAddr = *(uint32*)newValue;
+	HalFlashRead(test_flashAddr/HAL_FLASH_PAGE_SIZE, test_flashAddr%HAL_FLASH_PAGE_SIZE, test_flashData, APO_TEST_DATA_LEN);
   }
 }
 
@@ -1889,11 +1698,9 @@ static void resetCharacteristicValue(uint16 servUuid, uint8 paramID, uint8 value
       Magnetometer_SetParameter( paramID, paramLen, pData);
       break;
 
-#if (SENSOR_HUMID == TRUE)
     case HUMIDITY_SERV_UUID:
       Humidity_SetParameter( paramID, paramLen, pData);
       break;
-#endif
 
     case BAROMETER_SERV_UUID:
       Barometer_SetParameter( paramID, paramLen, pData);
@@ -1932,11 +1739,9 @@ static void resetCharacteristicValues( void )
   resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));
   resetCharacteristicValue( ACCELEROMETER_SERV_UUID, SENSOR_PERI, ACC_DEFAULT_PERIOD / SENSOR_PERIOD_RESOLUTION, sizeof ( uint8 ));
 
-#if (SENSOR_HUMID == TRUE)
   resetCharacteristicValue( HUMIDITY_SERV_UUID, SENSOR_DATA, 0, HUMIDITY_DATA_LEN);
   resetCharacteristicValue( HUMIDITY_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));
   resetCharacteristicValue( HUMIDITY_SERV_UUID, SENSOR_PERI, HUM_DEFAULT_PERIOD / SENSOR_PERIOD_RESOLUTION, sizeof ( uint8 ));
-#endif
 
   resetCharacteristicValue( MAGNETOMETER_SERV_UUID, SENSOR_DATA, 0, MAGNETOMETER_DATA_LEN);
   resetCharacteristicValue( MAGNETOMETER_SERV_UUID, SENSOR_CONF, ST_CFG_SENSOR_DISABLE, sizeof ( uint8 ));

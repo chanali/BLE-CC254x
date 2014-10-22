@@ -74,6 +74,17 @@
 #define ST_CFG_ERROR                          0xFF
 
 
+#define REC_INFO_PAGE_BASE   79
+
+//2k per page
+#define IRTEMP_FLASH_PAGE_BASE  80  //check *.xcl(Linker Configuration file) first
+#define IRTEMP_FLASH_PAGE_CNT    8
+#define ACCEL_FLASH_PAGE_BASE  (IRTEMP_FLASH_PAGE_BASE + IRTEMP_FLASH_PAGE_CNT)
+#define ACCEL_FLASH_PAGE_CNT    8
+
+
+#define FLASH_REC_MAGIC                 0x5A
+
 /*********************************************************************
  * Profile Callbacks
  */
@@ -86,6 +97,13 @@ typedef struct
   sensorChange_t        pfnSensorChange;  // Called when characteristic value changes
 } sensorCBs_t;
 
+typedef struct
+{
+  uint8 flashInUse;
+  uint32 head;
+  uint32 tail;
+  // magic and checksum
+} flashRecInfo_t;
 
 /*-------------------------------------------------------------------
  * FUNCTIONS
@@ -103,6 +121,8 @@ typedef struct
  * @return  Success or Failure
  */
 bStatus_t utilExtractUuid16(gattAttribute_t *pAttr, uint16 *pValue);
+
+uint8 ringBufferIsFull(uint16 head, uint16 tail, uint16 depth);
 
 #endif /* ST_UTIL_H */
 

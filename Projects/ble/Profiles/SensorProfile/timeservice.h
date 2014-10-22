@@ -35,6 +35,8 @@ extern "C"
 // Length of sensor data in bytes
 #define TIME_DATA_LEN          4
 
+#define TIME_MS_PER_TICK 100 // 100ms
+
 /*********************************************************************
  * TYPEDEFS
  */

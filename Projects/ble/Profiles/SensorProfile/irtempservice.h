@@ -126,9 +126,7 @@ extern bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value );
  */
 extern bStatus_t IRTemp_GetParameter( uint8 param, void *value );
 
-extern uint8 IRTempGetLinkStatus(void);
-extern uint8 IRTemp_isNotificationEn(void);
-
+extern void IRTemp_flashInit(flashRecInfo_t *flashInfo);
 
 /*********************************************************************
 *********************************************************************/

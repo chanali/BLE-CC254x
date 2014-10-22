@@ -42,6 +42,7 @@
  */
 #include "bcomdef.h"
 #include "linkdb.h"
+#include "hal_flash.h"
 #include "gatt.h"
 #include "gatt_uuid.h"
 #include "gattservapp.h"
@@ -64,11 +65,14 @@
 #define SENSOR_PERIOD_UUID      ACCELEROMETER_PERI_UUID
 
 #define SENSOR_SERVICE          ACCELEROMETER_SERVICE
-#define SENSOR_DATA_LEN         ACCELEROMETER_DATA_LEN
+#define SENSOR_DATA_LEN         ACCELEROMETER_DATA_LEN_WITH_TIME
 
 #define SENSOR_DATA_DESCR       "Accel. Data"
 #define SENSOR_CONFIG_DESCR     "Accel. Conf."
 #define SENSOR_PERIOD_DESCR     "Accel. Period"
+
+#define ACCEL_RINGBUFFER_DEPTH  16 
+#define ACCEL_RINGBUFFER_SIZE ((ACCEL_RINGBUFFER_DEPTH)*(SENSOR_DATA_LEN))
 
 /*********************************************************************
  * TYPEDEFS
@@ -153,6 +157,8 @@ static uint8 sensorPeriod = SENSOR_MIN_UPDATE_PERIOD / SENSOR_PERIOD_RESOLUTION;
 
 // Characteristic User Description: period
 static uint8 sensorPeriodUserDescr[] = SENSOR_PERIOD_DESCR;
+
+static uint8 accelLinkStatus = LINKDB_STATUS_UPDATE_NEW;
 
 /*********************************************************************
  * Profile Attributes - Table
@@ -247,6 +253,20 @@ static gattAttribute_t sensorAttrTable[] =
       },
 };
 
+//#pragma data_alignment=4
+//#pragma pack (4)
+static uint32 accelRingBuffer[ACCEL_RINGBUFFER_SIZE/sizeof(uint32)];
+//#pragma
+static accelData_t* accelRingRecord;
+static uint16 accelRingHead;
+static uint16 accelRingTail;
+
+//static bool accelFlashValid = FALSE;
+//flash pointer in unit of byte
+static uint32 accelFlashBegin;
+static uint32 accelFlashHead;
+static uint32 accelFlashTail;
+static uint32 accelFlashEnd;
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -257,6 +277,11 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
                                  uint8 *pValue, uint8 len, uint16 offset );
 static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType );
 
+static uint8 Accel_isNotificationEn(void);
+static uint8 AccelGetLinkStatus(void);
+static bStatus_t AccelReadRecordFromFlash(uint8 *data, uint8 *len);
+
+extern bStatus_t SensorTag_wrFlashInfo(flashRecInfo_t *flashInfo);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -300,6 +325,10 @@ bStatus_t Accel_AddService( uint32 services )
                                           &sensorCBs );
   }
 
+  // to save ACCEL_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
+  accelRingRecord = (accelData_t*)accelRingBuffer;
+  accelRingHead = accelRingTail = 0;
+
   return ( status );
 }
 
@@ -330,6 +359,151 @@ bStatus_t Accel_RegisterAppCBs( sensorCBs_t *appCallbacks )
 }
 
 /*********************************************************************
+*
+*/
+void Accel_flashInit(flashRecInfo_t *flashInfo)
+{
+  int pg;
+  
+  if (1)//(flashRecInfo[0].flashInUse != FLASH_REC_MAGIC)  // flash can't be writen if head/tail not saved and flash not erased.
+  {
+    for (pg=ACCEL_FLASH_PAGE_BASE; pg<ACCEL_FLASH_PAGE_BASE+ACCEL_FLASH_PAGE_CNT; pg++)
+    {
+      uint16 offset;
+      uint8 tmp;
+      bool n_erased = 0;
+  	
+      HalFlashErase(pg);
+      for (offset = 0; offset < HAL_FLASH_PAGE_SIZE; offset ++)
+      {
+        HalFlashRead(pg, offset, &tmp, 1);
+        if (tmp != 0xFF)
+        {
+          n_erased = 1;
+          break;
+        }
+      }
+      if (n_erased) while(1);
+    }
+    flashInfo[0].flashInUse = FLASH_REC_MAGIC;
+    flashInfo[0].head = flashInfo[0].tail = accelFlashHead = accelFlashTail = 
+      (uint32)ACCEL_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+    SensorTag_wrFlashInfo(flashInfo);
+  }
+  else
+  {
+    accelFlashHead = flashInfo[0].head;
+    accelFlashTail = flashInfo[0].tail;
+  }
+  // successfully to test it
+  // write data in unit of byte in ram and in unit of word(4 bytes) in flash
+  //HalFlashWrite((uint32)ACCEL_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE/4 /* in flash */, 
+  //	(uint8 *)&flash_w_data /* in ram */,1 /* in flash */);
+  // read data in unit of byte even for flash.
+  //HalFlashRead(ACCEL_FLASH_PAGE_BASE, 0, (uint8*)&flash_r_data, 4);
+
+  accelFlashBegin =(uint32)ACCEL_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+  accelFlashEnd = accelFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)ACCEL_FLASH_PAGE_CNT;
+
+  return;
+}
+
+static uint8 Accel_isNotificationEn(void)
+{
+  if (((sensorDataConfig[0].value)&0x01) == 0x01)
+    return 1; // Notification has been enabled
+  else
+    return 0;
+}
+
+static bStatus_t AccelReadRecordFromRam(uint8 *data, uint8 *pLen)
+{
+  if (accelRingHead != accelRingTail)
+  {
+    *pLen = SENSOR_DATA_LEN;
+    osal_memcpy(data, &accelRingRecord[accelRingTail], SENSOR_DATA_LEN);
+    accelRingTail = (accelRingTail == (ACCEL_RINGBUFFER_DEPTH-1))?0:(accelRingTail+1);
+  }	
+  else
+  {
+    *pLen = SENSOR_DATA_LEN;
+	osal_memset( data, 0, SENSOR_DATA_LEN );
+  }
+
+  return SUCCESS;
+}
+
+static bStatus_t AccelReadRecordFromFlash(uint8 *data, uint8 *pLen)
+{
+  int i;
+  
+  if ((accelFlashHead - accelFlashTail) >= SENSOR_DATA_LEN)
+  {
+    *pLen = SENSOR_DATA_LEN;
+    HalFlashRead(accelFlashTail/HAL_FLASH_PAGE_SIZE, 
+        accelFlashTail%HAL_FLASH_PAGE_SIZE, data, SENSOR_DATA_LEN);
+    accelFlashTail += SENSOR_DATA_LEN;
+  }
+  else
+  {
+    AccelReadRecordFromRam(data, pLen);
+    // if all flash data is read out and no enough flash to write, erase the flash.
+    if ((accelFlashEnd - accelFlashHead) < SENSOR_DATA_LEN)
+    {
+      for (i=ACCEL_FLASH_PAGE_BASE; i<ACCEL_FLASH_PAGE_BASE+ACCEL_FLASH_PAGE_CNT; i++)
+        HalFlashErase(i);
+      accelFlashHead = accelFlashTail = accelFlashBegin = (uint32)ACCEL_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+      accelFlashEnd = accelFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)ACCEL_FLASH_PAGE_CNT;
+    }
+  }
+
+  return SUCCESS;
+}
+
+/*
+refer to osal_snv.c and flash controller in <CC253x4x User's Guide>
+The flash memory is divided into 2048-byte or 1024-byte flash pages. A flash page is the smallest
+erasable unit in the memory, whereas a 32-bit word is the smallest writable unit that can be written to the
+flash.
+*/
+static bStatus_t AccelSaveDataToFlash( uint8 *data, uint16 len )
+{
+  // for word(4 bytes) alignment and page is 512 words(2048 bytes)
+  //uint16 addr = (offset >> 2) + ((uint16)pg << 9);
+  //uint16 cnt = len >> 2;
+  uint32 addr = accelFlashHead >> 2;
+  uint16 cnt = len >> 2;
+
+  HalFlashWrite((uint16)addr, data, cnt); // in unit of word
+  // verify...
+  
+  return SUCCESS;
+}
+
+static bStatus_t AccelSaveDataToRam(uint8 *data, uint16 len)
+{
+  if (ringBufferIsFull(accelRingHead, accelRingTail, ACCEL_RINGBUFFER_DEPTH))
+  {
+    // the current entry is available
+    osal_memcpy(&accelRingRecord[accelRingHead], data, len);
+    if ((accelFlashEnd - accelFlashHead) >= ACCEL_RINGBUFFER_SIZE)
+    {
+      AccelSaveDataToFlash((uint8 *)accelRingBuffer, ACCEL_RINGBUFFER_SIZE);
+      accelFlashHead += ACCEL_RINGBUFFER_SIZE;
+    }  
+    accelRingHead = accelRingTail = 0;  // reuse all ring buffer
+  }
+  else
+  {
+    osal_memcpy(&accelRingRecord[accelRingHead], data, len);
+    // move to available entry
+    accelRingHead = (accelRingHead == (ACCEL_RINGBUFFER_DEPTH-1))?0:(accelRingHead+1);
+  }
+  
+  return SUCCESS;
+}
+
+/*********************************************************************
  * @fn      Accel_SetParameter
  *
  * @brief   Set a parameter.
@@ -354,9 +528,16 @@ bStatus_t Accel_SetParameter( uint8 param, uint8 len, void *value )
     {
       VOID osal_memcpy( sensorData, value, SENSOR_DATA_LEN );
       // See if Notification has been enabled
+      if ((AccelGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) && Accel_isNotificationEn())
+      {
       GATTServApp_ProcessCharCfg( sensorDataConfig, sensorData, FALSE,
                                  sensorAttrTable, GATT_NUM_ATTRS( sensorAttrTable ),
                                  INVALID_TASK_ID );
+      }  
+      else
+      {
+        AccelSaveDataToRam(sensorData, SENSOR_DATA_LEN);
+      }
     }
     else
     {
@@ -477,8 +658,15 @@ static uint8 sensor_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
     // No need for "GATT_SERVICE_UUID" or "GATT_CLIENT_CHAR_CFG_UUID" cases;
     // gattserverapp handles those reads
     case SENSOR_DATA_UUID:
-      *pLen = SENSOR_DATA_LEN;
-      VOID osal_memcpy( pValue, pAttr->pValue, SENSOR_DATA_LEN );
+      if (1)
+      {
+        AccelReadRecordFromFlash(pValue, pLen);
+      }
+      else
+      {
+        *pLen = SENSOR_DATA_LEN;
+        VOID osal_memcpy( pValue, pAttr->pValue, SENSOR_DATA_LEN );
+      }
       break;
 
     case SENSOR_CONFIG_UUID:
@@ -639,10 +827,19 @@ static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
            ( !linkDB_Up( connHandle ) ) ) )
     {
       GATTServApp_InitCharCfg( connHandle, sensorDataConfig );
+      accelLinkStatus = LINKDB_STATUS_UPDATE_REMOVED;
+    }
+    else
+	{
+      accelLinkStatus = LINKDB_STATUS_UPDATE_NEW;
     }
   }
 }
 
+static uint8 AccelGetLinkStatus(void)
+{
+  return accelLinkStatus;
+}
 
 /*********************************************************************
 *********************************************************************/

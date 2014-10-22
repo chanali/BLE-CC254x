@@ -118,7 +118,6 @@ static CONST gattAttrType_t sensorService = { TI_UUID_SIZE, sensorServiceUUID };
 
 // Characteristic Value: data
 static uint8 sensorData[SENSOR_DATA_LEN] = { 0, 0, 0, 0};
-uint32 *timeData = (uint32*)sensorData;
 
 // Characteristic Properties: data
 static uint8 sensorDataProps = GATT_PROP_READ | GATT_PROP_NOTIFY;
@@ -502,8 +501,8 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
         uint8 *pCurValue = (uint8 *)pAttr->pValue;
 
         //*pCurValue = pValue[0];
-		osal_memcpy(pCurValue, pValue, len);
-// sensorData is in attibution table
+        osal_memcpy(pCurValue, pValue, len);
+        // sensorData is in attibution table
         //if( pAttr->pValue == &sensorCfg )
         //{
           notifyApp = SENSOR_DATA;

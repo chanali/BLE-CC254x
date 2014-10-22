@@ -42,6 +42,7 @@
  */
 #include "bcomdef.h"
 #include "linkdb.h"
+#include "hal_flash.h"
 #include "gatt.h"
 #include "gatt_uuid.h"
 #include "gattservapp.h"
@@ -74,7 +75,8 @@
 #undef SENSOR_MIN_UPDATE_PERIOD
 #define SENSOR_MIN_UPDATE_PERIOD  300 // Minimum 300 milliseconds
 
-#define SENSOR_CFG_READ_HISDATA  0x80
+#define IRTEMP_RINGBUFFER_DEPTH  16 
+#define IRTEMP_RINGBUFFER_SIZE ((IRTEMP_RINGBUFFER_DEPTH)*(SENSOR_DATA_LEN))
 
 /*********************************************************************
  * TYPEDEFS
@@ -274,6 +276,20 @@ static gattAttribute_t sensorAttrTable[] =
       },
 };
 
+//#pragma data_alignment=4
+//#pragma pack (4)
+static uint32 irTempRingBuffer[IRTEMP_RINGBUFFER_SIZE/sizeof(uint32)];
+//#pragma
+static irTempData_t* irTempRingRecord;
+static uint16 irTempRingHead;
+static uint16 irTempRingTail;
+
+//static bool irTempFlashValid = FALSE;
+//flash pointer in unit of byte
+static uint32 irTempFlashBegin;
+static uint32 irTempFlashHead;
+static uint32 irTempFlashTail;
+static uint32 irTempFlashEnd;
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -284,7 +300,11 @@ static bStatus_t sensor_WriteAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
                                  uint8 *pValue, uint8 len, uint16 offset );
 static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType );
 
-extern bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *len);
+static uint8 IRTemp_isNotificationEn(void);
+static uint8 IRTempGetLinkStatus(void);
+static bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *len);
+
+extern bStatus_t SensorTag_wrFlashInfo(flashRecInfo_t *flashInfo);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -328,6 +348,10 @@ bStatus_t IRTemp_AddService( uint32 services )
                                           &sensorCBs );
   }
 
+  // to save IRTEMP_RINGBUFFER_DEPTH sample data, it's better to align buffer size to flash page size.
+  irTempRingRecord = (irTempData_t*)irTempRingBuffer;
+  irTempRingHead = irTempRingTail = 0;
+
   return ( status );
 }
 
@@ -357,12 +381,149 @@ bStatus_t IRTemp_RegisterAppCBs( sensorCBs_t *appCallbacks )
   return ( bleAlreadyInRequestedMode );
 }
 
-uint8 IRTemp_isNotificationEn(void)
+/*********************************************************************
+*
+*/
+void IRTemp_flashInit(flashRecInfo_t *flashInfo)
 {
-	if (((sensorDataConfig[0].value)&0x01) == 0x01)
-		return 1; // Notification has been enabled
-	else
-		return 0;
+  int pg;
+  
+  if (1)//(flashRecInfo[0].flashInUse != FLASH_REC_MAGIC)  // flash can't be writen if head/tail not saved and flash not erased.
+  {
+    for (pg=IRTEMP_FLASH_PAGE_BASE; pg<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; pg++)
+    {
+      uint16 offset;
+      uint8 tmp;
+      bool n_erased = 0;
+  	
+      HalFlashErase(pg);
+      for (offset = 0; offset < HAL_FLASH_PAGE_SIZE; offset ++)
+      {
+        HalFlashRead(pg, offset, &tmp, 1);
+        if (tmp != 0xFF)
+        {
+          n_erased = 1;
+          break;
+        }
+      }
+      if (n_erased) while(1);
+    }
+    flashInfo[0].flashInUse = FLASH_REC_MAGIC;
+    flashInfo[0].head = flashInfo[0].tail = irTempFlashHead = irTempFlashTail = 
+      (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+    SensorTag_wrFlashInfo(flashInfo);
+  }
+  else
+  {
+    irTempFlashHead = flashInfo[0].head;
+    irTempFlashTail = flashInfo[0].tail;
+  }
+  // successfully to test it
+  // write data in unit of byte in ram and in unit of word(4 bytes) in flash
+  //HalFlashWrite((uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE/4 /* in flash */, 
+  //	(uint8 *)&flash_w_data /* in ram */,1 /* in flash */);
+  // read data in unit of byte even for flash.
+  //HalFlashRead(IRTEMP_FLASH_PAGE_BASE, 0, (uint8*)&flash_r_data, 4);
+
+  irTempFlashBegin =(uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+  irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;
+
+  return;
+}
+
+static uint8 IRTemp_isNotificationEn(void)
+{
+  if (((sensorDataConfig[0].value)&0x01) == 0x01)
+    return 1; // Notification has been enabled
+  else
+    return 0;
+}
+
+static bStatus_t IRTempReadRecordFromRam(uint8 *data, uint8 *pLen)
+{
+  if (irTempRingHead != irTempRingTail)
+  {
+    *pLen = SENSOR_DATA_LEN;
+    osal_memcpy(data, &irTempRingRecord[irTempRingTail], SENSOR_DATA_LEN);
+    irTempRingTail = (irTempRingTail == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempRingTail+1);
+  }	
+  else
+  {
+    *pLen = SENSOR_DATA_LEN;
+	osal_memset( data, 0, SENSOR_DATA_LEN );
+  }
+
+  return SUCCESS;
+}
+
+static bStatus_t IRTempReadRecordFromFlash(uint8 *data, uint8 *pLen)
+{
+  int i;
+  
+  if ((irTempFlashHead - irTempFlashTail) >= SENSOR_DATA_LEN)
+  {
+    *pLen = SENSOR_DATA_LEN;
+    HalFlashRead(irTempFlashTail/HAL_FLASH_PAGE_SIZE, 
+        irTempFlashTail%HAL_FLASH_PAGE_SIZE, data, SENSOR_DATA_LEN);
+    irTempFlashTail += SENSOR_DATA_LEN;
+  }
+  else
+  {
+    IRTempReadRecordFromRam(data, pLen);
+    // if all flash data is read out and no enough flash to write, erase the flash.
+    if ((irTempFlashEnd - irTempFlashHead) < SENSOR_DATA_LEN)
+    {
+      for (i=IRTEMP_FLASH_PAGE_BASE; i<IRTEMP_FLASH_PAGE_BASE+IRTEMP_FLASH_PAGE_CNT; i++)
+        HalFlashErase(i);
+      irTempFlashHead = irTempFlashTail = irTempFlashBegin = (uint32)IRTEMP_FLASH_PAGE_BASE*(uint32)HAL_FLASH_PAGE_SIZE;
+      irTempFlashEnd = irTempFlashBegin + (uint32)HAL_FLASH_PAGE_SIZE*(uint32)IRTEMP_FLASH_PAGE_CNT;
+    }
+  }
+
+  return SUCCESS;
+}
+
+/*
+refer to osal_snv.c and flash controller in <CC253x4x User's Guide>
+The flash memory is divided into 2048-byte or 1024-byte flash pages. A flash page is the smallest
+erasable unit in the memory, whereas a 32-bit word is the smallest writable unit that can be written to the
+flash.
+*/
+static bStatus_t IRTempSaveDataToFlash( uint8 *data, uint16 len )
+{
+  // for word(4 bytes) alignment and page is 512 words(2048 bytes)
+  //uint16 addr = (offset >> 2) + ((uint16)pg << 9);
+  //uint16 cnt = len >> 2;
+  uint32 addr = irTempFlashHead >> 2;
+  uint16 cnt = len >> 2;
+
+  HalFlashWrite((uint16)addr, data, cnt); // in unit of word
+  // verify...
+  
+  return SUCCESS;
+}
+
+static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
+{
+  if (ringBufferIsFull(irTempRingHead, irTempRingTail, IRTEMP_RINGBUFFER_DEPTH))
+  {
+    // the current entry is available
+    osal_memcpy(&irTempRingRecord[irTempRingHead], data, len);
+    if ((irTempFlashEnd - irTempFlashHead) >= IRTEMP_RINGBUFFER_SIZE)
+    {
+      IRTempSaveDataToFlash((uint8 *)irTempRingBuffer, IRTEMP_RINGBUFFER_SIZE);
+      irTempFlashHead += IRTEMP_RINGBUFFER_SIZE;
+    }  
+    irTempRingHead = irTempRingTail = 0;  // reuse all ring buffer
+  }
+  else
+  {
+    osal_memcpy(&irTempRingRecord[irTempRingHead], data, len);
+    // move to available entry
+    irTempRingHead = (irTempRingHead == (IRTEMP_RINGBUFFER_DEPTH-1))?0:(irTempRingHead+1);
+  }
+  
+  return SUCCESS;
 }
 
 /*********************************************************************
@@ -388,12 +549,21 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
     case SENSOR_DATA:
     if ( len == SENSOR_DATA_LEN )
     {
-      //copy to attribution table
+      /* copy to attribution table */
       VOID osal_memcpy( sensorData, value, SENSOR_DATA_LEN );
       // See if Notification has been enabled
-      GATTServApp_ProcessCharCfg( sensorDataConfig, sensorData, FALSE,
+      /* write data "01 00" to "Client Characteristic Configuration" 
+      to enable notification of GATTServApp_ProcessCharCfg() */ 
+      if ((IRTempGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) && IRTemp_isNotificationEn())
+      {
+        GATTServApp_ProcessCharCfg( sensorDataConfig, sensorData, FALSE,
                                  sensorAttrTable, GATT_NUM_ATTRS( sensorAttrTable ),
                                  INVALID_TASK_ID );
+      }  
+      else
+      {
+        IRTempSaveDataToRam(sensorData, SENSOR_DATA_LEN);
+      }
     }
     else
     {
@@ -514,16 +684,15 @@ static uint8 sensor_ReadAttrCB( uint16 connHandle, gattAttribute_t *pAttr,
     // No need for "GATT_SERVICE_UUID" or "GATT_CLIENT_CHAR_CFG_UUID" cases;
     // gattserverapp handles those reads
     case SENSOR_DATA_UUID:
-      // read history data
-      if (1)//((sensorCfg & SENSOR_CFG_READ_HISDATA) == SENSOR_CFG_READ_HISDATA)
+      if (1)
       {
         IRTempReadRecordFromFlash(pValue, pLen);
       }
       else
       {
-      *pLen = SENSOR_DATA_LEN;
-      VOID osal_memcpy( pValue, pAttr->pValue, SENSOR_DATA_LEN );
-       }
+        *pLen = SENSOR_DATA_LEN;
+        VOID osal_memcpy( pValue, pAttr->pValue, SENSOR_DATA_LEN );
+      }
       break;
 
     case SENSOR_CONFIG_UUID:
@@ -687,12 +856,14 @@ static void sensor_HandleConnStatusCB( uint16 connHandle, uint8 changeType )
       irTempLinkStatus = LINKDB_STATUS_UPDATE_REMOVED;
     }
     else
-       irTempLinkStatus = LINKDB_STATUS_UPDATE_NEW;
+	{
+      irTempLinkStatus = LINKDB_STATUS_UPDATE_NEW;
+    }
   }
 }
 
 //if link is down, client will not issue R/W command.
-uint8 IRTempGetLinkStatus(void)
+static uint8 IRTempGetLinkStatus(void)
 {
   return irTempLinkStatus;
 }
