@@ -77,6 +77,7 @@
 
 #define IRTEMP_RINGBUFFER_DEPTH  16 
 #define IRTEMP_RINGBUFFER_SIZE ((IRTEMP_RINGBUFFER_DEPTH)*(SENSOR_DATA_LEN))
+#define IRTEMP_DIFF_THRESHOLD    0x05
 
 /*********************************************************************
  * TYPEDEFS
@@ -543,6 +544,7 @@ static bStatus_t IRTempSaveDataToRam(uint8 *data, uint16 len)
 bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
 {
   bStatus_t ret = SUCCESS;
+  uint16 diff = 0;
 
   switch ( param )
   {
@@ -550,6 +552,11 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
     if ( len == SENSOR_DATA_LEN )
     {
       /* copy to attribution table */
+      
+      if (*((uint16*)value+10/sizeof(uint16)) > *(uint16*)&sensorData[10])
+        diff = *((uint16*)value+10/sizeof(uint16)) - *(uint16*)&sensorData[10];
+      else
+        diff = *(uint16*)&sensorData[10] - *((uint16*)value+10/sizeof(uint16));
       VOID osal_memcpy( sensorData, value, SENSOR_DATA_LEN );
       // See if Notification has been enabled
       /* write data "01 00" to "Client Characteristic Configuration" 
@@ -562,7 +569,8 @@ bStatus_t IRTemp_SetParameter( uint8 param, uint8 len, void *value )
       }  
       else
       {
-        IRTempSaveDataToRam(sensorData, SENSOR_DATA_LEN);
+        if (diff > IRTEMP_DIFF_THRESHOLD)
+          IRTempSaveDataToRam(sensorData, SENSOR_DATA_LEN);
       }
     }
     else

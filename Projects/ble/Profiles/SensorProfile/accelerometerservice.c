@@ -73,6 +73,7 @@
 
 #define ACCEL_RINGBUFFER_DEPTH  16 
 #define ACCEL_RINGBUFFER_SIZE ((ACCEL_RINGBUFFER_DEPTH)*(SENSOR_DATA_LEN))
+#define ACCEL_DIFF_THRESHOLD   0x05
 
 /*********************************************************************
  * TYPEDEFS
@@ -520,12 +521,23 @@ static bStatus_t AccelSaveDataToRam(uint8 *data, uint16 len)
 bStatus_t Accel_SetParameter( uint8 param, uint8 len, void *value )
 {
   bStatus_t ret = SUCCESS;
+  uint8 offset;
+  uint8 diff_x, diff_y, diff_z;
 
   switch ( param )
   {
     case SENSOR_DATA:
     if ( len == SENSOR_DATA_LEN )
     {
+      offset = SENSOR_DATA_LEN - 4;
+      diff_x = (*((uint8*)value+offset) > sensorData[offset])?
+        (*((uint8*)value+offset) - sensorData[offset]):(sensorData[offset] - *((uint8*)value+offset));
+      offset++;
+      diff_y = (*((uint8*)value+offset) > sensorData[offset])?
+        (*((uint8*)value+offset) - sensorData[offset]):(sensorData[offset] - *((uint8*)value+offset));
+      offset++;
+      diff_z = (*((uint8*)value+offset) > sensorData[offset])?
+        (*((uint8*)value+offset) - sensorData[offset]):(sensorData[offset] - *((uint8*)value+offset));
       VOID osal_memcpy( sensorData, value, SENSOR_DATA_LEN );
       // See if Notification has been enabled
       if ((AccelGetLinkStatus() != LINKDB_STATUS_UPDATE_REMOVED) && Accel_isNotificationEn())
@@ -536,7 +548,9 @@ bStatus_t Accel_SetParameter( uint8 param, uint8 len, void *value )
       }  
       else
       {
-        AccelSaveDataToRam(sensorData, SENSOR_DATA_LEN);
+        if ((diff_x >= ACCEL_DIFF_THRESHOLD) || (diff_y >= ACCEL_DIFF_THRESHOLD) 
+          || (diff_z >= ACCEL_DIFF_THRESHOLD))
+          AccelSaveDataToRam(sensorData, SENSOR_DATA_LEN);
       }
     }
     else

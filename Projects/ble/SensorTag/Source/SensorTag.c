@@ -1075,8 +1075,11 @@ static void readAccData(void)
     osal_memcpy( &aTimeData[i], &timeData, TIME_DATA_LEN );
     i += TIME_DATA_LEN;
     aTimeData[i++] = DATA_TYPE_SENSOR_DATA;	//type = sensor data
-    aTimeData[i++] = IRTEMPERATURE_DATA_LEN;	//len
-    osal_memcpy( &aTimeData[i], aData, IRTEMPERATURE_DATA_LEN );
+    aTimeData[i++] = ACCELEROMETER_DATA_LEN;	//len
+    osal_memcpy( &aTimeData[i], aData, ACCELEROMETER_DATA_LEN );
+    i += ACCELEROMETER_DATA_LEN;
+    if (ACCELEROMETER_DATA_LEN_WITH_TIME > i)
+	    osal_memset( &aTimeData[i], 0, ACCELEROMETER_DATA_LEN_WITH_TIME-i );
     Accel_SetParameter( SENSOR_DATA, ACCELEROMETER_DATA_LEN_WITH_TIME, aTimeData);
   }
 }
@@ -1582,9 +1585,9 @@ static void testChangeCB( uint8 paramID )
   if( paramID == APO_TEST_DATA_ATTR )
   {
     uint8 newValue[4];
-	Test_GetParameter( APO_TEST_DATA_ATTR, newValue );
-	test_flashAddr = *(uint32*)newValue;
-	HalFlashRead(test_flashAddr/HAL_FLASH_PAGE_SIZE, test_flashAddr%HAL_FLASH_PAGE_SIZE, test_flashData, APO_TEST_DATA_LEN);
+	  Test_GetParameter( APO_TEST_DATA_ATTR, newValue );
+	  test_flashAddr = *(uint32*)newValue;
+	  HalFlashRead(test_flashAddr/HAL_FLASH_PAGE_SIZE, test_flashAddr%HAL_FLASH_PAGE_SIZE, test_flashData, APO_TEST_DATA_LEN);
   }
 }
 
